@@ -1,0 +1,40 @@
+<!--<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/brython@3.13.0/brython.min.js">
+        </script>
+        <script type="text/javascript"
+            src="https://cdn.jsdelivr.net/npm/brython@3.13.0/brython_stdlib.js">
+        </script>
+    </head>
+
+    <body>
+        <script type="text/python">
+            from browser import document
+            
+            document <= 2*3
+        </script>
+    </body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width,initial-scale=1" />
+      <title>🦜 Polyglot - Piratical PyScript</title>
+      <link rel="stylesheet" href="https://pyscript.net/releases/2024.10.2/core.css">
+      <script type="module" src="https://pyscript.net/releases/2024.10.2/core.js"></script>
+  </head>
+  <body>
+    <h1>Polyglot 🦜 💬 🇬🇧 ➡️ 🏴‍☠️</h1>
+    <p>Translate English into Pirate speak...</p>
+    <input type="text" id="english" placeholder="Type English here..." />
+    <button py-click="translate_english">Translate</button>
+    <div id="output"></div>
+    <script type="py" src="./../TextGames/test.py" config="./../pyscript.json"></script>
+  </body>
+</html>
