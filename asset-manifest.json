@@ -1,14 +1,14 @@
 {
   "files": {
-    "main.css": "/AJJ22.github.io/static/css/main.6f6917f6.css",
-    "main.js": "/AJJ22.github.io/static/js/main.a9eab295.js",
-    "static/media/three.jpg": "/AJJ22.github.io/static/media/three.835d0f363ce2f265410e.jpg",
-    "index.html": "/AJJ22.github.io/index.html",
-    "main.6f6917f6.css.map": "/AJJ22.github.io/static/css/main.6f6917f6.css.map",
-    "main.a9eab295.js.map": "/AJJ22.github.io/static/js/main.a9eab295.js.map"
+    "main.css": "/static/css/main.6f6917f6.css",
+    "main.js": "/static/js/main.0f9eb5e1.js",
+    "static/media/three.jpg": "/static/media/three.835d0f363ce2f265410e.jpg",
+    "index.html": "/index.html",
+    "main.6f6917f6.css.map": "/static/css/main.6f6917f6.css.map",
+    "main.0f9eb5e1.js.map": "/static/js/main.0f9eb5e1.js.map"
   },
   "entrypoints": [
     "static/css/main.6f6917f6.css",
-    "static/js/main.a9eab295.js"
+    "static/js/main.0f9eb5e1.js"
   ]
 }
