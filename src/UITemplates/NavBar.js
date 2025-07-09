@@ -11,11 +11,11 @@ function navBar() {
         <Container class="container-fluid">
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link className="navLink" href="/Home">Home</Nav.Link>
-              <Nav.Link className="navLink" href="/Education">Education</Nav.Link>
-              <Nav.Link className="navLink" href="/experience">Experience</Nav.Link>
-              <Nav.Link className="navLink" href="/Contact">Contact</Nav.Link>
-              <Nav.Link className="navLink" href="/TextGame2019">Text Game 2019</Nav.Link>
+              <Nav.Link className="navLink" href="/#/Home">Home</Nav.Link>
+              <Nav.Link className="navLink" href="/#/Education">Education</Nav.Link>
+              <Nav.Link className="navLink" href="/#/experience">Experience</Nav.Link>
+              <Nav.Link className="navLink" href="/#/Contact">Contact</Nav.Link>
+              <Nav.Link className="navLink" href="/#/TextGame2019">Text Game 2019</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

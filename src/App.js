@@ -6,7 +6,7 @@ import Contact from './UITemplates/Contact';
 //import TextGame2019 from './UITemplates/TextGame2019';
 //import NavBar from './UITemplates/NavBar.js';
 
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 function App(){
   return(
