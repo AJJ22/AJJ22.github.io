@@ -1,4 +1,4 @@
-# Link to the site: [AJJ22.github.io](AJJ22.github.io)
+# Link to the site: [AJJ22.github.io](https://AJJ22.github.io)
 
 ## Development build tools
 
