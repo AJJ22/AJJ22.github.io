@@ -21,7 +21,6 @@ export function gameReducer(state, action) {
             const itemsHere = action.items[location] || [];
             const exitsHere = action.exits[location] || [];
 
-            //const msg = `Currently in: ${location}\nTakeable Items: ${itemsHere.join(', ')}\nPlaces to go: ${exitsHere.join(', ')}`;
             const msg = `Currently in: ${location}\n` +
                         `Takeable Items: ${itemsHere.join(', ') || 'None'}\n` +
                         `Places to go: ${exitsHere.join(', ') || 'None'}`;

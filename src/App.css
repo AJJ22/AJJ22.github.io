@@ -40,11 +40,6 @@
   width: 900px;
 }
 
-.message{
-  display: flex;
-  font-size: 20px;
-}
-
 .input-area{
   display: flex;
   padding-top: 10px;
@@ -57,7 +52,8 @@
   flex-direction: column;
   font-family: monospace; /* looks more like terminal/game */
   text-wrap: pretty;
-  margin: 0;
+  font-size: 20px;
+  padding-left: 10px;
 }
 
 .user-command {
