@@ -1,8 +1,6 @@
-# Getting Started with Create React App
+# Link to the site: [AJJ22.github.io](AJJ22.github.io)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
-
-## Available Scripts
+## Development build tools
 
 In the project directory, you can run:
 
