@@ -3,7 +3,7 @@ import Education from './UITemplates/Education';
 import Experience from './UITemplates/Experience';
 import Home from './UITemplates/Home';
 import Contact from './UITemplates/Contact';
-//import TextGame2019 from './UITemplates/TextGame2019';
+import TextGame2019 from './UITemplates/TextGame2019';
 //import NavBar from './UITemplates/NavBar.js';
 
 import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -27,7 +27,7 @@ function App(){
             <Route path="/contact" element={<Contact />} />
 
             {}
-            {/*<Route path="/textGame2019" element={<TextGame2019 />} />*/}
+            <Route path="/textGame2019" element={<TextGame2019 />} />
 
             {/* If any route mismatches the upper route endpoints then, redirect triggers and redirects app to home component with to="/" */}
             {/* <Redirect to="/" /> */}

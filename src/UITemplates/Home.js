@@ -6,11 +6,7 @@ import NavBar from './NavBar.js';
 function home(){
     return (
         <div>
-            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous"></link>
-            <div>
-                <NavBar />
-            </div>
-            
+            <NavBar />
             <div class="page">
                 <p>
                     <img class="portrait" src={portrait} />

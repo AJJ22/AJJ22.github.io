@@ -1,37 +1,54 @@
-import {React, Image, SafeAreaView, SafeAreaProvider} from 'react';
-
 import NavBar from './NavBar.js';
-var __html = require('./TextGame2019.html');
-var template = { __html: __html };
-//var perf =require('./TextGame2019.html');
-//import "./TextGame2019.html";
+import { useGameLogic } from '../TextGames/textGame2019.js';
+import { useRef, useEffect } from 'react';
 
-// function textGame2019() {
-//     return(
-//         <div>
-//             <div>
-//                 <NavBar />
-//             </div>
-//             <div class="page">
-//                 <iframe src="./TextGame2019.html"></iframe>
-//             </div>
-//         </div>
-//     );
-// }
-// export default textGame2019;
+export function TextGame2019() {
+    const messageEndRef = useRef(null);
+    const {
+            messages,
+            inputValue,
+            setInputValue,
+            sendMessage,
+            handleKeyDown,
+            player
+    } = useGameLogic();
 
+    useEffect(() => {
+        if (messageEndRef.current) {
+            messageEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [messages]);
 
-
-function iframe() {
-    return {
-        __html: '<iframe src="./TextGame2019.html" width="1000" height="1000"></iframe>'
-    }
-}
-
-
-export default function Exercises() {
-    return (
+    return(
         <div>
-            <div dangerouslySetInnerHTML={iframe()} />
-        </div>)
+            <NavBar />
+            
+            <div className="page">
+                <div className="message-container">
+                    {messages.map((msg, index) => (
+                        <div key={index} className={`message${msg.startsWith('>') ? ' user-command' : ''}`}>
+                            {msg.split('\n').map((line, i) => (
+                                <div key={i}>{line}</div>
+                            ))}
+                        </div>
+                    ))}
+                    <div ref={messageEndRef} />
+                </div>
+
+                <div className="input-area">
+                    <input
+                        id="input-box"
+                        type="text"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        autoComplete='off'
+                        placeholder="Enter a command..."
+                    />
+                    <button onClick={sendMessage}>Send</button>
+                </div>
+            </div>
+        </div>
+    );
 }
+export default TextGame2019;
