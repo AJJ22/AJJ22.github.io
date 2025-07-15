@@ -1,17 +1,15 @@
-import React from "react";
-
 import NavBar from './NavBar.js';
 
 function experience(){
     return(
         <div>
             <NavBar />
-            <div class="page">
+            <div className="page">
                 <h1>Experience</h1>
                 <ul>
-                    <strong>Product Developer | Epicor Software | January 2020 – Present</strong>
+                    <strong>Product Developer | Epicor Software | January 2020 – July 2025</strong>
                     <ul>
-                        <strong>ERP Kinetic Development - October 2022 - Present</strong>
+                        <strong>ERP Kinetic Development - October 2022 - July 2025</strong>
                         <li>Developed new features and solutions for the existing product implementation.</li>
                         <li>Resolved bugs with backend C# logic including MSSQL Server queries and frontend bugs in Angular to help ensure a seamless user experience.</li>
                         <li>Collaborated with and coached other developers and product owners to fulfill product specifications and code standards.</li>

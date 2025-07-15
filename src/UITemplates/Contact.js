@@ -1,12 +1,10 @@
-import React from "react";
-
 import NavBar from './NavBar.js';
 
 function contact(){
     return (
         <div>
             <NavBar />
-            <div class="page">
+            <div className="page">
                 <h1>Contact</h1>
                 <p>
                     <div>Email: austinjrch8@gmail.com</div>

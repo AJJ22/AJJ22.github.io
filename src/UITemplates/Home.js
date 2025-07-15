@@ -1,4 +1,3 @@
-import {React, Image, SafeAreaView, SafeAreaProvider} from 'react';
 import portrait from './../images/three.jpg';
 
 import NavBar from './NavBar.js';
@@ -7,13 +6,13 @@ function home(){
     return (
         <div>
             <NavBar />
-            <div class="page">
+            <div className="page">
                 <p>
-                    <img class="portrait" src={portrait} />
-                    <span class="name">Austin Jerich</span>
+                    <img className="portrait" alt="Headshot of Austin Jerich" src={portrait} />
+                    <span className="name">Austin Jerich</span>
                 </p>
                 
-                <p class="p1">
+                <p className="p1">
                     <h4>About Me</h4>
                     <p>
                         I am a software engineering professional actively searching for new employment opportunities. 

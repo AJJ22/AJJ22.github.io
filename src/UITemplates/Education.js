@@ -1,12 +1,10 @@
-import React from "react";
-
 import NavBar from './NavBar.js';
 
 function education(){
     return(
         <div>
             <NavBar />
-            <div class="page">
+            <div className="page">
                 <h1>Education</h1>
                 <p>
                     <strong>BS - Computer Science</strong>

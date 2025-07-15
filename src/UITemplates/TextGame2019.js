@@ -10,7 +10,6 @@ export function TextGame2019() {
             setInputValue,
             sendMessage,
             handleKeyDown,
-            player
     } = useGameLogic();
 
     useEffect(() => {
