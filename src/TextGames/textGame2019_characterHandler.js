@@ -1,8 +1,8 @@
-import { Character, helpMsg, itemMap, locationMap as locMap, enemyMap } from '../TextGames/textGame2019_objectCreation.js';
+import { Character, helpMsg, itemMap, locationMap, enemyMap } from '../TextGames/textGame2019_objectCreation.js';
 
 export const initialState = {
     player: new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
-    locationMap: locMap,
+    locationMap,
     messages: ["Type 'help' for a list of commands"]
 };
 
@@ -288,7 +288,7 @@ export function gameReducer(state, action) {
         }
 
         case 'DROP': {
-            const { player, items } = state;
+            const { player } = state;
             if(player.inv.includes(action.item)){
                 const updatePlayer = {
                     ...player,
