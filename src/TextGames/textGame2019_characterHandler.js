@@ -1,13 +1,13 @@
-import { Character, helpMsg, itemMap, locationMap, enemyMap } from '../TextGames/textGame2019_objectCreation.js';
+import { Character, helpMsg, itemMap, locationMap as locMap, enemyMap } from '../TextGames/textGame2019_objectCreation.js';
 
 export const initialState = {
-    player: new Character(15, 7/10, 7, 10, 5, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"], 10),
-    locationMap: locationMap,
+    player: new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
+    locationMap: locMap,
     messages: ["Type 'help' for a list of commands"]
 };
 
 export function gameReducer(state, action) {
-    const player = state.player;
+    const { player, locationMap } = state;
 
     let removeFirstFoundItem = (arr, item) => {
         const index = arr.indexOf(item)
@@ -77,14 +77,14 @@ export function gameReducer(state, action) {
         }
 
         case 'LOOK': {
-            const { player, enemiesLocation } = state;
-            const enemiesHere = enemiesLocation[player.location];
+            const { player } = state;
+            const enemiesHere = locationMap[player.location].enemies;
             return {
                 ...state,
                 messages: [...state.messages,
                     `Currently in: ${player.location}\n` +
-                    `Takeable Items: ${itemMap[player.location].join(', ') || 'None'}\n` +
-                    `Places to go: ${locationMap[player.location.exits].join(', ') || 'None'}\n` +
+                    `Takeable Items: ${locationMap[player.location].floorItems.join(', ') || 'None'}\n` +
+                    `Places to move: ${locationMap[player.location].exits.join(', ') || 'None'}\n` +
                     `Enemies: ` + (enemiesHere.length > 0 ? enemiesHere.join(', ') : 'None')
                 ]
             };
@@ -121,7 +121,7 @@ export function gameReducer(state, action) {
         }
 
         case 'MOVE': {
-            const exitsHere = locationMap[player.location.exits] || [];
+            const exitsHere = locationMap[player.location].exits;
 
             if (exitsHere.includes(action.direction)) {
                 const updatePlayer = {
@@ -262,20 +262,20 @@ export function gameReducer(state, action) {
         }
 
         case 'TAKE': {
-            const { player, items } = state;
-            if (items[player.location].includes(action.item)){
+            const itemsHere = locationMap[player.location].floorItems;
+            if (itemsHere.includes(action.item)){
                 const updatePlayer = {
                     ...player,
                     inv: player.inv.concat(action.item)
                 }
                 const updateItems = {
-                    ...items,
-                    [player.location]: items[player.location].filter(i => i !== action.item)
+                    ...locationMap,
+                    [player.location]: locationMap[player.location].floorItems.filter(i => i !== action.item)
                 }
                 return{
                     ...state,
                     player: updatePlayer,
-                    items: updateItems,
+                    locationMap: updateItems,
                     messages: [...state.messages, `You take the ${action.item}.`]
                 }
             }
@@ -295,13 +295,13 @@ export function gameReducer(state, action) {
                     inv: removeFirstFoundItem(player.inv, action.item)
                 }
                 const updateItems = {
-                    ...items,
-                    [player.location]: items[player.location].concat(action.item)
+                    ...locationMap,
+                    [player.location]: locationMap[player.location].floorItems.concat(action.item)
                 }
                 return{
                     ...state,
                     player: updatePlayer,
-                    items: updateItems,
+                    locationMap: updateItems,
                     messages: [...state.messages, `You drop the ${action.item}`]
                 }
             }

@@ -15,7 +15,7 @@ import data from './textGame2019_Data.json';
 // modified by armorPiece and pots
 
 export class Character{
-    constructor(baseHp, healthScaling, strength, dex, armorStat, loc, inv, gold){
+    constructor(baseHp, healthScaling, strength, dex, armorStat, gold, loc, inv){
         this.initialBaseHP = baseHp //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
         this.baseHP = baseHp //need this so i don't stack strength bonuses on top of eachother
         this.healthScaling = healthScaling //the smaller this is, the faster HP will grow
@@ -49,14 +49,14 @@ export class Character{
 //#region Item Classes
 export class Item{
     constructor(name, sellValue){
-        this.itemName = name
+        this.name = name
         this.sellValue = sellValue
     }
 }
 
 export class Weapon extends Item{
-    constructor(weaponName, sellValue, damage, critChance, chanceToHit){
-        super(weaponName, sellValue);
+    constructor(name, sellValue, damage, critChance, chanceToHit){
+        super(name, sellValue);
         this.damage = damage
         this.critChance = critChance
         this.chanceToHit = chanceToHit
@@ -64,16 +64,16 @@ export class Weapon extends Item{
 }
 
 export class Armor extends Item{
-    constructor(armorName, sellValue, weakness = [], armorValue){
-        super(armorName, sellValue);
+    constructor(name, sellValue, weakness = [], armorValue){
+        super(name, sellValue);
         this.weakness = weakness
         this.armorValue = armorValue
     }
 }
 
 export class Food extends Item{
-    constructor(foodName, sellValue, healAmount, increaseStat, increaseStatAmount){
-        super(foodName, sellValue);
+    constructor(name, sellValue, healAmount, increaseStat, increaseStatAmount){
+        super(name, sellValue);
         this.healAmount = healAmount
         this.increaseStat = increaseStat
         this.increaseStatAmount = increaseStatAmount
@@ -81,16 +81,16 @@ export class Food extends Item{
 }
 
 export class Potion extends Item{
-    constructor(potionName, sellValue, potionType, potionValue){
-        super(potionName, sellValue)
+    constructor(name, sellValue, potionType, potionValue){
+        super(name, sellValue)
         this.potionType = potionType
         this.potionValue = potionValue
     }
 }
 
 export class Key extends Item{
-    constructor(keyName, sellValue){
-        super(keyName, sellValue)
+    constructor(name, sellValue){
+        super(name, sellValue)
     }
 }
 //#endregion
@@ -107,8 +107,8 @@ export class Location{
 }
 
 export class Store extends Location{
-    constructor(storeName, exits, floorItems, enemies, lockedRooms, saleItems = [], itemPrices = []){
-        super(storeName, exits, floorItems, enemies, lockedRooms)
+    constructor(name, exits, floorItems, enemies, lockedRooms, saleItems = [], itemPrices = []){
+        super(name, exits, floorItems, enemies, lockedRooms)
         this.saleItems = saleItems
         this.itemPrices = itemPrices
     }
@@ -133,15 +133,20 @@ export class Enemy{
 
 
 //#region Object creation
-export const weaponMap = data.weapons.map(w => new Weapon(w.weaponName, w.sellValue, w.damage, w.critChance, w.chanceToHit));
+const weaponList = data.weapons.map(w => new Weapon(w.name, w.sellValue, w.damage, w.critChance, w.chanceToHit));
+const weaponMap = Object.fromEntries(weaponList.map(w => [w.name, w]));
 
-export const armorMap = data.armor.map(a => new Armor(a.armorName, a.sellValue, a.weakness, a.armorValue));
+const armorList = data.armor.map(a => new Armor(a.name, a.sellValue, a.weakness, a.armorValue));
+const armorMap = Object.fromEntries(armorList.map(a => [a.name, a]));
 
-export const foodMap = data.food.map(f => new Food(f.foodName, f.sellValue, f.healAmount, f.increaseStat, f.increaseStatAmount));
+const foodList = data.food.map(f => new Food(f.name, f.sellValue, f.healAmount, f.increaseStat, f.increaseStatAmount));
+const foodMap = Object.fromEntries(foodList.map(f => [f.name, f]));
 
-export const potionMap = data.potions.map(p => new Potion(p.potionName, p.sellValue, p.potionType, p.potionValue));
+const potionList = data.potions.map(p => new Potion(p.name, p.sellValue, p.potionType, p.potionValue));
+const potionMap = Object.fromEntries(potionList.map(p => [p.name, p]));
 
-export const keyMap = data.keys.map(k => new Key(k.keyName, k.sellValue));
+const keyList = data.keys.map(k => new Key(k.name, k.sellValue));
+const keyMap = Object.fromEntries(keyList.map(k => [k.name, k]));
 
 //this allows me to access items using itemMap["itemName"] instead of needing to specify the individual map i want
 export const itemMap = {
@@ -152,7 +157,7 @@ export const itemMap = {
     ...keyMap,
 };
 
-export const locationMap = data.locations.map(loc => {
+const locationList = data.locations.map(loc => {
   if (loc.store) {
     return new Store(
       loc.name,
@@ -173,8 +178,10 @@ export const locationMap = data.locations.map(loc => {
     );
   }
 });
+export const locationMap = Object.fromEntries(locationList.map(l => [l.name, l]));
 
-export const enemyMap = data.enemies.map(e => new Enemy(e.name, e.damage, e.critChance, e.chanceToHit, e.hp, e.gold, e.itemDrops, e.damageType, e.isBoss))
+const enemyList = data.enemies.map(e => new Enemy(e.name, e.damage, e.critChance, e.chanceToHit, e.hp, e.gold, e.itemDrops, e.damageType, e.isBoss))
+export const enemyMap = Object.fromEntries(enemyList.map(e => [e.name, e]));
 //#endregion
 
 export const helpMsg = "---- COMMANDS ----\n" +
@@ -221,7 +228,7 @@ export const helpMsg = "---- COMMANDS ----\n" +
 
 
 
-                
+
 
 
 
