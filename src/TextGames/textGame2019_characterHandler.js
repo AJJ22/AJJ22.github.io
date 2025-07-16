@@ -1,5 +1,5 @@
-import { items as initialItems, enemiesLocation as initEnemiesLocation, potions, armorPieces } from '../TextGames/textGame2019_Data.js';
-import { Character, helpMsg, exits, food, weapons } from '../TextGames/textGame2019_Data.js';
+import { items as initialItems, enemiesLocation as initEnemiesLocation, potions, armorPieces } from '../TextGames/textGame2019_objectCreation.js';
+import { Character, helpMsg, exits, food, weapons } from '../TextGames/textGame2019_objectCreation.js';
 
 export const initialState = {
     player: new Character(15, 7/10, 7, 10, 5, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"], 10),

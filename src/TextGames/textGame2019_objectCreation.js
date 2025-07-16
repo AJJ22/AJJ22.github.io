@@ -1,3 +1,5 @@
+import data from './textGame2019_Data.json';
+
 ////// CRITICAL STRIKE CHANCE
 // modified by weapon crit chance only
 
@@ -10,43 +12,177 @@
 // and strength (4 HP / 10 strength)
 
 ////// ARMOR
-// modified by armorPiece only
-// maybe by pots, do not currently have armor pots available. have code to support them
+// modified by armorPiece and pots
 
 export class Character{
-    constructor(baseHp_input, healthScaling_input, strength_input, dex_input, armorStat_input, loc_input, inv_input, gold_input){
-        this.initialBaseHP = baseHp_input //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
-        this.baseHP = baseHp_input //need this so i don't stack strength bonuses on top of eachother
-        this.healthScaling = healthScaling_input //the smaller this is, the faster HP will grow
+    constructor(baseHp, healthScaling, strength, dex, armorStat, loc, inv, gold){
+        this.initialBaseHP = baseHp //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
+        this.baseHP = baseHp //need this so i don't stack strength bonuses on top of eachother
+        this.healthScaling = healthScaling //the smaller this is, the faster HP will grow
         //i want the baseHP to affect the strength bonus health. (the more baseHP you have, the more benefit you get from strength) 
-        this.maxHp = this.baseHP + Math.round(strength_input * (this.baseHP / (this.initialBaseHP * this.healthScaling)))
+        this.maxHp = this.baseHP + Math.round(strength * (this.baseHP / (this.initialBaseHP * this.healthScaling)))
         this.currentHP = this.maxHp /2 //this will be how i track hp in battles, if you take damage, remove from here
         //beforeStrengthHP = hp //initial HP pool that will be added to with potions
-        this.strength = strength_input //used for damage modifier and health
+        this.strength = strength //used for damage modifier and health
 
         this.totalCrit = .2 //chance to critically strike after everything has been factored in
         this.baseCrit = .2 //only modified by stat pots and temporary bosts
 
-        this.dex = dex_input //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
+        this.dex = dex //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
                        //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
 
         this.baseChanceToHit = Math.round((.7 + this.dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
         this.totalChanceToHit = this.baseChanceToHit //chanceToHit after all modifiers
 
-        this.armorStat = armorStat_input //damage reduction stat
+        this.armorStat = armorStat //damage reduction stat can be increased with potions
         this.armorPiece = "" //what armor piece you are currently wearing
-        this.armor = this.armorStat //store total value of armor for damage reductions
+        this.armor = this.armorStat + armorPieces[this.armorPiece] //total damage reduction for calculating hits
 
         this.weapon = ""
         
-        this.location = loc_input
-        this.inv = inv_input
-        this.gold = gold_input
+        this.location = loc
+        this.inv = inv
+        this.gold = gold
         //playing = true //remove since we are not using a game loop. its just a browser 
         //itemsInLocations = items //remove these because they are unnecessary if not using save files??
         //exits = exits
     }
 }
+
+//#region Item Classes
+export class Item{
+    constructor(name, sellValue){
+        this.itemName = name
+        this.sellValue = sellValue
+    }
+}
+
+export class Weapon extends Item{
+    constructor(weaponName, sellValue, damage, critChance, chanceToHit){
+        super(weaponName, sellValue);
+        this.damage = damage
+        this.critChance = critChance
+        this.chanceToHit = chanceToHit
+    }
+}
+
+export class Armor extends Item{
+    constructor(armorName, sellValue, weakness = [], armorValue){
+        super(armorName, sellValue);
+        this.weakness = weakness
+        this.armorValue = armorValue
+    }
+}
+
+export class Food extends Item{
+    constructor(foodName, sellValue, healAmount, increaseStat, increaseStatAmount){
+        super(foodName, sellValue);
+        this.healAmount = healAmount
+        this.increaseStat = increaseStat
+        this.increaseStatAmount = increaseStatAmount
+    }
+}
+
+export class Potion extends Item{
+    constructor(potionName, sellValue, potionType, potionValue){
+        super(potionName, sellValue)
+        this.potionType = potionType
+        this.potionValue = potionValue
+    }
+}
+
+export class Key extends Item{
+    constructor(keyName, sellValue){
+        super(keyName, sellValue)
+    }
+}
+//#endregion
+
+//#region Location Classes
+export class Location{
+    constructor(name, exits = [], floorItems = [], enemies = [], lockedRooms = []){
+        this.name = name
+        this.exits = exits
+        this.floorItems = floorItems
+        this.enemies = enemies
+        this.lockedRooms = lockedRooms
+    }
+}
+
+export class Store extends Location{
+    constructor(storeName, exits, floorItems, enemies, lockedRooms, saleItems = [], itemPrices = []){
+        super(storeName, exits, floorItems, enemies, lockedRooms)
+        this.saleItems = saleItems
+        this.itemPrices = itemPrices
+    }
+}
+//#endregion
+
+//#region Enemy Classes
+export class Enemy{
+    constructor(damage, critChance, chanceToHit, hp, gold, itemDrops = [], damageType = [], isBoss = false){
+        this.damage = damage
+        this.critChance = critChance
+        this.chanceToHit = chanceToHit
+        this.hp = hp
+        this.gold = gold
+        this.itemDrops = itemDrops
+        this.damageType = damageType
+        this.isBoss = isBoss
+    }
+}
+//#endregion
+
+
+
+//#region Item creation
+export const weaponMap = data.map(w => new Weapon(w.weaponName, w.sellValue, w.damage, w.critChance, w.chanceToHit));
+
+export const armorMap = data.map(a => new Armor(a.armorName, a.sellValue, a.weakness, a.armorValue));
+
+export const foodMap = data.map(f => new Food(f.foodName, f.sellValue, f.healAmount, f.increaseStat, f.increaseStatAmount));
+
+export const potionMap = data.map(p => new Potion(p.potionName, p.sellValue, p.potionType, p.potionValue));
+
+export const keyMap = data.map(k => new Key(k.keyName, k.sellValue));
+
+//this allows me to access items using itemMap["itemName"] instead of needing to specify the individual map i want
+export const itemMap = {
+    ...weaponMap,
+    ...armorMap,
+    ...foodMap,
+    ...potionMap,
+    ...keyMap,
+};
+//#endregion
+
+//#region Location creation
+export const locationMap = data.locations.map(loc => {
+  if (loc.store) {
+    return new Store(
+      loc.name,
+      loc.exits,
+      loc.floorItems, // You may want to convert item names to instances here
+      loc.enemies,
+      loc.lockedRooms,
+      loc.store.saleItems,
+      loc.store.itemPrices
+    );
+  } else {
+    return new Location(
+      loc.name,
+      loc.exits,
+      loc.floorItems,
+      loc.enemies,
+      loc.lockedRooms
+    );
+  }
+});
+//#endregion
+
+//#region Enemy creation
+
+//#endregion
 
 export const helpMsg = "---- COMMANDS ----\n" +
                 "  l                 (look)\n" +
@@ -178,6 +314,7 @@ export const exits = {
 
     ////////CHURCH//////
 }
+
 
 // secret roooms to be unlocked with a key
 export const rooms = {
