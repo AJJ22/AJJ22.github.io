@@ -36,16 +36,13 @@ export class Character{
 
         this.armorStat = armorStat //damage reduction stat can be increased with potions
         this.armorPiece = "" //what armor piece you are currently wearing
-        this.armor = this.armorStat + armorPieces[this.armorPiece] //total damage reduction for calculating hits
+        this.armor = this.armorStat + armorMap[this.armorPiece] //total damage reduction for calculating hits
 
         this.weapon = ""
         
         this.location = loc
         this.inv = inv
         this.gold = gold
-        //playing = true //remove since we are not using a game loop. its just a browser 
-        //itemsInLocations = items //remove these because they are unnecessary if not using save files??
-        //exits = exits
     }
 }
 
@@ -120,7 +117,8 @@ export class Store extends Location{
 
 //#region Enemy Classes
 export class Enemy{
-    constructor(damage, critChance, chanceToHit, hp, gold, itemDrops = [], damageType = [], isBoss = false){
+    constructor(name, damage, critChance, chanceToHit, hp, gold, itemDrops = [], damageType = [], isBoss = false){
+        this.name = name
         this.damage = damage
         this.critChance = critChance
         this.chanceToHit = chanceToHit
@@ -134,17 +132,16 @@ export class Enemy{
 //#endregion
 
 
+//#region Object creation
+export const weaponMap = data.weapons.map(w => new Weapon(w.weaponName, w.sellValue, w.damage, w.critChance, w.chanceToHit));
 
-//#region Item creation
-export const weaponMap = data.map(w => new Weapon(w.weaponName, w.sellValue, w.damage, w.critChance, w.chanceToHit));
+export const armorMap = data.armor.map(a => new Armor(a.armorName, a.sellValue, a.weakness, a.armorValue));
 
-export const armorMap = data.map(a => new Armor(a.armorName, a.sellValue, a.weakness, a.armorValue));
+export const foodMap = data.food.map(f => new Food(f.foodName, f.sellValue, f.healAmount, f.increaseStat, f.increaseStatAmount));
 
-export const foodMap = data.map(f => new Food(f.foodName, f.sellValue, f.healAmount, f.increaseStat, f.increaseStatAmount));
+export const potionMap = data.potions.map(p => new Potion(p.potionName, p.sellValue, p.potionType, p.potionValue));
 
-export const potionMap = data.map(p => new Potion(p.potionName, p.sellValue, p.potionType, p.potionValue));
-
-export const keyMap = data.map(k => new Key(k.keyName, k.sellValue));
+export const keyMap = data.keys.map(k => new Key(k.keyName, k.sellValue));
 
 //this allows me to access items using itemMap["itemName"] instead of needing to specify the individual map i want
 export const itemMap = {
@@ -154,9 +151,7 @@ export const itemMap = {
     ...potionMap,
     ...keyMap,
 };
-//#endregion
 
-//#region Location creation
 export const locationMap = data.locations.map(loc => {
   if (loc.store) {
     return new Store(
@@ -178,10 +173,8 @@ export const locationMap = data.locations.map(loc => {
     );
   }
 });
-//#endregion
 
-//#region Enemy creation
-
+export const enemyMap = data.enemies.map(e => new Enemy(e.name, e.damage, e.critChance, e.chanceToHit, e.hp, e.gold, e.itemDrops, e.damageType, e.isBoss))
 //#endregion
 
 export const helpMsg = "---- COMMANDS ----\n" +
@@ -200,8 +193,46 @@ export const helpMsg = "---- COMMANDS ----\n" +
                 "  e     <item>:     (equip)\n" +
                 "  a     <enemy>:    (attack)\n" +
                 "  eat   <food>\n" +
-                "  drink <potion>"
+                "  drink <potion>";
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                
+
+
+
+
+
+
+
+
+
+
+/*
 export const locations = ["town", "house", "ryan-store",
              "desert", "abdi-store", "room-room", "pyramid", "sandstorm", "dark-hall", "dank-hall", "stair-a", "dim-room", "light-room", "black-room", "stair-c", "gold-room", "stair-b", "TDWL-room", "burial-chamber", "stair-d",
              "lake", "danou-store",
@@ -658,3 +689,5 @@ export const enemiesLocation = {
     "cliff":[],
     "clearning":[],
 }
+
+*/

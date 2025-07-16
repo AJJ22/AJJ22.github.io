@@ -1,10 +1,8 @@
-import { items as initialItems, enemiesLocation as initEnemiesLocation, potions, armorPieces } from '../TextGames/textGame2019_objectCreation.js';
-import { Character, helpMsg, exits, food, weapons } from '../TextGames/textGame2019_objectCreation.js';
+import { Character, helpMsg, itemMap, locationMap, enemyMap } from '../TextGames/textGame2019_objectCreation.js';
 
 export const initialState = {
     player: new Character(15, 7/10, 7, 10, 5, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"], 10),
-    items: initialItems,
-    enemiesLocation: initEnemiesLocation,
+    locationMap: locationMap,
     messages: ["Type 'help' for a list of commands"]
 };
 
@@ -29,7 +27,7 @@ export function gameReducer(state, action) {
     function updateArmor(player){
         return {
             ...player,
-            armor: player.armorStat + armorPieces[player.armorPiece]
+            armor: player.armorStat + itemMap[player.armorPiece]
         };
     }
 
@@ -44,7 +42,7 @@ export function gameReducer(state, action) {
         if(player.weapon !== ""){
             return{
                 ...player,
-                totalChanceToHit: Math.round((player.baseChanceToHit * weapons[player.weapon][2]) * 100) / 100
+                totalChanceToHit: Math.round((player.baseChanceToHit * itemMap[player.weapon.chanceToHit]) * 100) / 100
             }
         }
         else{
@@ -59,7 +57,7 @@ export function gameReducer(state, action) {
         if (player.weapon !== ""){
             return{
                 ...player,
-                totalCrit: Math.round((player.baseCrit * weapons[player.weapon][1]) * 100) / 100
+                totalCrit: Math.round((player.baseCrit * itemMap[player.weapon.critChance]) * 100) / 100
             }
         }
         else{
@@ -79,14 +77,14 @@ export function gameReducer(state, action) {
         }
 
         case 'LOOK': {
-            const { player, items, enemiesLocation } = state;
+            const { player, enemiesLocation } = state;
             const enemiesHere = enemiesLocation[player.location];
             return {
                 ...state,
                 messages: [...state.messages,
                     `Currently in: ${player.location}\n` +
-                    `Takeable Items: ${items[player.location].join(', ') || 'None'}\n` +
-                    `Places to go: ${exits[player.location].join(', ') || 'None'}\n` +
+                    `Takeable Items: ${itemMap[player.location].join(', ') || 'None'}\n` +
+                    `Places to go: ${locationMap[player.location.exits].join(', ') || 'None'}\n` +
                     `Enemies: ` + (enemiesHere.length > 0 ? enemiesHere.join(', ') : 'None')
                 ]
             };
@@ -123,7 +121,7 @@ export function gameReducer(state, action) {
         }
 
         case 'MOVE': {
-            const exitsHere = exits[player.location] || [];
+            const exitsHere = locationMap[player.location.exits] || [];
 
             if (exitsHere.includes(action.direction)) {
                 const updatePlayer = {
@@ -147,9 +145,9 @@ export function gameReducer(state, action) {
         //eating will restore HP
         //possibly grant temporary stat buffs. for now, only restoring health.
         case 'EAT': {
-            if (player.inv.includes(action.item) && action.item in food){
+            if (player.inv.includes(action.item) && action.item in itemMap.food){
                 if(player.currentHP < player.maxHp){
-                    if(player.currentHP + food[action.item][0] > player.maxHp){
+                    if(player.currentHP + itemMap.food[action.item][0] > player.maxHp){
                         const updatePlayer = {
                             ...player,
                             currentHP: player.maxHp,
@@ -164,13 +162,13 @@ export function gameReducer(state, action) {
                     else{
                         const updatePlayer = {
                             ...player,
-                            currentHP: player.currentHP + food[action.item][0],
+                            currentHP: player.currentHP + itemMap.food[action.item][0],
                             inv: removeFirstFoundItem(player.inv, action.item)
                         }
                         return{
                             ...state,
                             player: updatePlayer,
-                            messages: [...state.messages, `You eat the ${action.item} and restore ${food[action.item][0]} health.`]
+                            messages: [...state.messages, `You eat the ${action.item} and restore ${itemMap.food[action.item][0]} health.`]
                         }
                     }
                 }
@@ -195,7 +193,7 @@ export function gameReducer(state, action) {
                 if(action.item === 'dex-pot'){
                     let updatePlayer = {
                         ...player,
-                        dex: player.dex + potions[action.item],
+                        dex: player.dex + itemMap.potions[action.item],
                         baseChanceToHit: Math.round((.7 + player.dex * .005) * 100) / 100,
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
@@ -209,7 +207,7 @@ export function gameReducer(state, action) {
                 else if(action.item === 'str-pot'){
                     let updatePlayer = {
                         ...player,
-                        strength: player.strength + potions[action.item],
+                        strength: player.strength + itemMap.potions[action.item],
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
@@ -223,7 +221,7 @@ export function gameReducer(state, action) {
                 else if(action.item === 'hp-pot'){
                     let updatePlayer = {
                         ...player,
-                        baseHP: player.baseHP + potions[action.item],
+                        baseHP: player.baseHP + itemMap.potions[action.item],
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
@@ -237,7 +235,7 @@ export function gameReducer(state, action) {
                 else if(action.item === 'armor-pot'){
                     let updatePlayer = {
                         ...player,
-                        armorStat: player.armorStat + potions[action.item],
+                        armorStat: player.armorStat + itemMap.potions[action.item],
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateArmor(updatePlayer)
@@ -316,8 +314,8 @@ export function gameReducer(state, action) {
         }
 
         case 'EQUIP': {
-            let isWeapon = action.item in weapons;
-            let isArmor = action.item in armorPieces;
+            let isWeapon = action.item in itemMap.weapons;
+            let isArmor = action.item in itemMap.armorPieces;
 
             if ((!isWeapon && !isArmor) || !player.inv.includes(action.item)) {
                 return {
