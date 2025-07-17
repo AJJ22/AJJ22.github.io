@@ -1,7 +1,7 @@
-import { Character, helpMsg, itemMap, locationMap, enemyMap } from '../TextGames/textGame2019_objectCreation.js';
+import { player, helpMsg, itemMap, locationMap, enemyMap } from '../TextGames/textGame2019_objectCreation.ts';
 
 export const initialState = {
-    player: new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
+    player, //new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
     locationMap,
     messages: ["Type 'help' for a list of commands"]
 };

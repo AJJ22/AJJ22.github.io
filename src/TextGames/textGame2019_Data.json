@@ -72,17 +72,14 @@
         "floorItems": ["sword"],
         "enemies": [],
         "lockedRooms": [],
-        "store": {
-            "saleItems": ["sword", "taco", "apple", "steel-platemail", "light-chainmail", "hp-pot"],
-            "itemPrices": {
-                "sword": 3,
-                "taco": 4,
-                "apple": 5,
-                "steel-platemail": 6,
-                "light-chainmail": 4,
-                "hp-pot": 15
-            }
-        }
+        "itemsForSale": [
+            "sword 3",
+            "taco 4",
+            "apple 5",
+            "steel-platemail 6",
+            "light-chainmail 4",
+            "hp-pot 15"
+        ]
     },
     {
         "name": "desert",
@@ -97,19 +94,16 @@
         "floorItems": ["dex-pot"],
         "enemies": [],
         "lockedRooms": [],
-        "store": {
-        "saleItems": ["cake", "taco", "hand-axe", "pizza", "nice-sword", "leather-armor", "dex-pot", "str-pot"],
-            "itemPrices": {
-                "cake": 4,
-                "taco": 3,
-                "hand-axe": 5,
-                "pizza": 4,
-                "nice-sword": 5,
-                "leather-armor": 7,
-                "dex-pot": 10,
-                "str-pot": 10
-            }
-        }
+        "itemsForSale": [
+            "cake 4",
+            "taco 3",
+            "hand-axe 5",
+            "pizza 4",
+            "nice-sword 5",
+            "leather-armor 7",
+            "dex-pot 10",
+            "str-pot 10"
+        ]
     },
     {
         "name": "room-room",
@@ -229,10 +223,9 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
-        "store": {
-            "saleItems": [],
-            "itemPrices": {}
-        }
+        "itemsForSale": [
+            "armor-pot 10"
+        ]
     },
     {
         "name": "woods",
@@ -247,10 +240,9 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
-        "store": {
-            "saleItems": [],
-            "itemPrices": {}
-        }
+        "itemsForSale": [
+            "golden-chainmail 14"
+        ]
     },
     {
         "name": "path",
@@ -377,10 +369,9 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
-        "store": {
-            "saleItems": [],
-            "itemPrices": {}
-        }
+        "itemsForSale": [
+            "skooma 8"
+        ]
     }
   ],
   "enemies": [
