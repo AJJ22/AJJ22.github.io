@@ -1,5 +1,4 @@
-import portrait from './../images/three.jpg';
-
+import portrait from './../images/156x182.jpg';
 import NavBar from './NavBar.js';
 
 function home(){

@@ -111,27 +111,27 @@ interface Enemy{
 
 //#region Map JSON data to arrays of interfaceName[]
 const weapons: Weapon[] = data.weapons;
-const weaponMap: Record<string, Weapon> = Object.fromEntries(weapons.map(w => [w.name, w]))
+export const weaponMap: Record<string, Weapon> = Object.fromEntries(weapons.map(w => [w.name, w]))
 
 const armorList: Armor[] = data.armor;
-const armorMap: Record<string, Armor> = Object.fromEntries(armorList.map(a => [a.name, a]))
+export const armorMap: Record<string, Armor> = Object.fromEntries(armorList.map(a => [a.name, a]))
 
 const food: Food[] = data.food;
-const foodMap: Record<string, Food> = Object.fromEntries(food.map(f => [f.name, f]))
+export const foodMap: Record<string, Food> = Object.fromEntries(food.map(f => [f.name, f]))
 
 const potions: Potion[] = data.potions;
-const potionMap: Record<string, Potion> = Object.fromEntries(potions.map(p => [p.name, p]))
+export const potionMap: Record<string, Potion> = Object.fromEntries(potions.map(p => [p.name, p]))
 
 const keys: Key[] = data.keys;
-const keyMap: Record<string, Key> = Object.fromEntries(keys.map(k => [k.name, k]))
-
+export const keyMap: Record<string, Key> = Object.fromEntries(keys.map(k => [k.name, k]))
+/*
 export const itemMap = {
     ...weaponMap,
     ...armorMap,
     ...foodMap,
     ...potionMap,
     ...keyMap
-}
+}*/
 
 const locations: Location[] = data.locations;
 export const locationMap: Record<string, Location> = Object.fromEntries(locations.map(l => [l.name, l]));

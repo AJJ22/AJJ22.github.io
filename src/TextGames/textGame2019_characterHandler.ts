@@ -1,4 +1,4 @@
-import { player, helpMsg, itemMap, locationMap, enemyMap } from '../TextGames/textGame2019_objectCreation.ts';
+import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap } from './textGame2019_objectCreation.ts';
 
 export const initialState = {
     player, //new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
@@ -21,13 +21,21 @@ export function gameReducer(state, action) {
     let isAPotion = (item) => {
         return (['dex-pot', 'str-pot', 'hp-pot', 'armor-pot'].includes(item))
     }
+/*
+    function isArmor(obj: any) {
+        return 'armorValue' in obj && 'weakness' in obj
+    }
+
+    function isWeapon(obj: any) {
+        return 'critChance' in obj && 'sellValue' in obj
+    }*/
 
     //when you change something that affects a stat, these should be used
     //such as changing weapons/armor or increasing strength/dexterity/hp/armor with pots
     function updateArmor(player){
         return {
             ...player,
-            armor: player.armorStat + itemMap[player.armorPiece]
+            armor: player.armorStat + armorMap[player.armorPiece].armorValue
         };
     }
 
@@ -38,11 +46,11 @@ export function gameReducer(state, action) {
         }
     }
 
-    function updateChanceToHit (player){
+    function updateChanceToHit(player){
         if(player.weapon !== ""){
             return{
                 ...player,
-                totalChanceToHit: Math.round((player.baseChanceToHit * itemMap[player.weapon.chanceToHit]) * 100) / 100
+                totalChanceToHit: Math.round((player.baseChanceToHit * weaponMap[player.weapon].chanceToHit) * 100) / 100
             }
         }
         else{
@@ -57,7 +65,7 @@ export function gameReducer(state, action) {
         if (player.weapon !== ""){
             return{
                 ...player,
-                totalCrit: Math.round((player.baseCrit * itemMap[player.weapon.critChance]) * 100) / 100
+                totalCrit: Math.round((player.baseCrit * weaponMap[player.weapon].critChance) * 100) / 100
             }
         }
         else{
@@ -145,9 +153,9 @@ export function gameReducer(state, action) {
         //eating will restore HP
         //possibly grant temporary stat buffs. for now, only restoring health.
         case 'EAT': {
-            if (player.inv.includes(action.item) && action.item in itemMap.food){
+            if (player.inv.includes(action.item) && action.item in foodMap){
                 if(player.currentHP < player.maxHp){
-                    if(player.currentHP + itemMap.food[action.item][0] > player.maxHp){
+                    if(player.currentHP + foodMap[action.item].healAmount > player.maxHp){
                         const updatePlayer = {
                             ...player,
                             currentHP: player.maxHp,
@@ -162,13 +170,13 @@ export function gameReducer(state, action) {
                     else{
                         const updatePlayer = {
                             ...player,
-                            currentHP: player.currentHP + itemMap.food[action.item][0],
+                            currentHP: player.currentHP + foodMap[action.item].healAmount,
                             inv: removeFirstFoundItem(player.inv, action.item)
                         }
                         return{
                             ...state,
                             player: updatePlayer,
-                            messages: [...state.messages, `You eat the ${action.item} and restore ${itemMap.food[action.item][0]} health.`]
+                            messages: [...state.messages, `You eat the ${action.item} and restore ${foodMap[action.item].healAmount} health.`]
                         }
                     }
                 }
@@ -193,7 +201,7 @@ export function gameReducer(state, action) {
                 if(action.item === 'dex-pot'){
                     let updatePlayer = {
                         ...player,
-                        dex: player.dex + itemMap.potions[action.item],
+                        dex: player.dex + potionMap[action.item].potionValue,
                         baseChanceToHit: Math.round((.7 + player.dex * .005) * 100) / 100,
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
@@ -207,7 +215,7 @@ export function gameReducer(state, action) {
                 else if(action.item === 'str-pot'){
                     let updatePlayer = {
                         ...player,
-                        strength: player.strength + itemMap.potions[action.item],
+                        strength: player.strength + potionMap[action.item].potionValue,
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
@@ -221,7 +229,7 @@ export function gameReducer(state, action) {
                 else if(action.item === 'hp-pot'){
                     let updatePlayer = {
                         ...player,
-                        baseHP: player.baseHP + itemMap.potions[action.item],
+                        baseHP: player.baseHP + potionMap[action.item].potionValue,
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
@@ -235,7 +243,7 @@ export function gameReducer(state, action) {
                 else if(action.item === 'armor-pot'){
                     let updatePlayer = {
                         ...player,
-                        armorStat: player.armorStat + itemMap.potions[action.item],
+                        armorStat: player.armorStat + potionMap[action.item].potionValue,
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateArmor(updatePlayer)
@@ -270,7 +278,10 @@ export function gameReducer(state, action) {
                 }
                 const updateItems = {
                     ...locationMap,
-                    [player.location]: locationMap[player.location].floorItems.filter(i => i !== action.item)
+                    [player.location]: {
+                        ...locationMap[player.location],
+                        floorItems: removeFirstFoundItem(itemsHere, action.item)
+                    }
                 }
                 return{
                     ...state,
@@ -288,7 +299,7 @@ export function gameReducer(state, action) {
         }
 
         case 'DROP': {
-            const { player } = state;
+            const itemsHere = locationMap[player.location].floorItems;
             if(player.inv.includes(action.item)){
                 const updatePlayer = {
                     ...player,
@@ -296,7 +307,10 @@ export function gameReducer(state, action) {
                 }
                 const updateItems = {
                     ...locationMap,
-                    [player.location]: locationMap[player.location].floorItems.concat(action.item)
+                    [player.location]: {
+                        ...locationMap[player.location],
+                        floorItems: itemsHere.concat(action.item)
+                    }
                 }
                 return{
                     ...state,
@@ -314,10 +328,10 @@ export function gameReducer(state, action) {
         }
 
         case 'EQUIP': {
-            let isWeapon = action.item in itemMap.weapons;
-            let isArmor = action.item in itemMap.armorPieces;
+            var itemIsWeapon = action.item in weaponMap
+            var itemIsArmor = action.item in armorMap
 
-            if ((!isWeapon && !isArmor) || !player.inv.includes(action.item)) {
+            if ((!itemIsWeapon && !itemIsArmor) || !player.inv.includes(action.item)) {
                 return {
                     ...state,
                     messages: [...state.messages, "You can't equip that."]
@@ -327,26 +341,26 @@ export function gameReducer(state, action) {
             let newInv = player.inv.filter(i => i !== action.item);
 
             // If swapping, add the old item back to inventory
-            if (isWeapon && player.weapon !== '') {
+            if (itemIsWeapon && player.weapon !== '') {
                 newInv = newInv.concat(player.weapon);
             }
-            if (isArmor && player.armorPiece !== '') {
+            if (itemIsArmor && player.armorPiece !== '') {
                 newInv = newInv.concat(player.armorPiece);
             }
 
             let updatePlayer = {
                 ...player,
                 inv: newInv,
-                weapon: isWeapon ? action.item : player.weapon,
-                armorPiece: isArmor ? action.item : player.armorPiece
+                weapon: itemIsWeapon ? action.item : player.weapon,
+                armorPiece: itemIsArmor ? action.item : player.armorPiece
             };
 
             // Update stats
-            if (isWeapon) {
+            if (itemIsWeapon) {
                 updatePlayer = updateCritChance(updatePlayer);
                 updatePlayer = updateChanceToHit(updatePlayer);
             }
-            if (isArmor) {
+            if (itemIsArmor) {
                 updatePlayer = updateArmor(updatePlayer);
             }
 
