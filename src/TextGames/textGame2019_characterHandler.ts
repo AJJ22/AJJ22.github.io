@@ -3,7 +3,9 @@ import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locat
 export const initialState = {
     player, //new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
     locationMap,
-    messages: ["Type 'help' for a list of commands"]
+    messages: ["Type 'help' for a list of commands"],
+    awaitingBuyInput: false,
+    awaitingSellInput: false
 };
 
 export function gameReducer(state, action) {
@@ -370,6 +372,165 @@ export function gameReducer(state, action) {
                 messages: [...state.messages, `You equip the ${action.item}`]
             };
         }
+
+        case 'BUY_STEP_1': {
+            let items = locationMap[player.location].itemsForSale
+            if(items){
+                //i wrote this one myself (after looking at the example one in sell)
+                items = items.map(i => `${i.split(' ')[0]}: ${i.split(' ')[1]}`).join('\n')
+                return{
+                    ...state,
+                    awaitingBuyInput: true,
+                    messages: [...state.messages, `What would you like to buy?\n` + items ]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    awaitingBuyInput: false,
+                    messages: [...state.messages, `This is not a store.`]
+                }
+            }
+        }
+
+        case 'BUY_STEP_2': {
+            if(['quit', 'exit', 'leave', 'q'].includes(action.item)){
+                return{
+                    ...state,
+                    awaitingBuyInput: false,
+                    messages: [...state.messages, `You exit the shop menu.`]
+                }
+            }
+
+            //TODO: learn what reduce does, what is acc, what is the {}); at the bottom??
+            const saleItems = locationMap[player.location].itemsForSale.reduce((acc, itemStr) => {
+                const [name, price] = itemStr.split(' ');
+                acc[name] = Number(price);
+                return acc;
+            }, {});
+
+            if(action.item in saleItems){
+                if(player.gold < saleItems[action.item]){
+                    return{
+                        ...state,
+                        awaitingBuyInput: true,
+                        messages: [...state.messages, `You don't have enough gold.`]
+                    }
+                }
+
+                const updatePlayer = {
+                    ...player,
+                    gold: player.gold - saleItems[action.item],
+                    inv: player.inv.concat(action.item)
+                }
+                return{
+                    ...state,
+                    awaitingBuyInput: true,
+                    player: updatePlayer,
+                    messages: [...state.messages, `You bought the ${action.item}`]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    awaitingBuyInput: true,
+                    messages: [...state.messages, `You cannot buy ${action.item}`]
+                }
+            }
+        }
+
+        case 'SELL_STEP_1': {
+            if(locationMap[player.location].itemsForSale){
+                const itemMap = {...weaponMap, ...armorMap, ...foodMap, ...potionMap, ...keyMap}
+                let sellItems = ''
+                for(let i=0; i<player.inv.length; i++){
+                    sellItems += `${player.inv[i]}: ${itemMap[player.inv[i]].sellValue}\n`
+                }
+
+                //better way of doing the same thing. lambda functions are much more elegant
+                //const sellItems = player.inv.map(item => `${item}: ${itemMap[item]?.sellValue ?? 'Unknown'}`).join('\n');
+                
+                return{
+                    ...state,
+                    awaitingSellInput: true,
+                    messages: [...state.messages, `What would you like to sell?\n` + sellItems ]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    awaitingSellInput: false,
+                    messages: [...state.messages, `This is not a store.`]
+                }
+            }
+        }
+
+        case 'SELL_STEP_2': {
+            if(['quit', 'exit', 'leave', 'q'].includes(action.item)){
+                return{
+                    ...state,
+                    awaitingSellInput: false,
+                    messages: [...state.messages, `You exit the shop menu.`]
+                }
+            }
+
+            if(player.inv.includes(action.item)){
+                const itemMap = {...weaponMap, ...armorMap, ...foodMap, ...potionMap, ...keyMap}
+                const updatePlayer = {
+                    ...player,
+                    inv: removeFirstFoundItem(player.inv, action.item),
+                    gold: player.gold + itemMap[action.item].sellValue
+                }
+                return{
+                    ...state,
+                    awaitingSellInput: true,
+                    player: updatePlayer,
+                    messages: [...state.messages, `You sell the ${action.item}`]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    awaitingSellInput: true,
+                    messages: [...state.messages, `You cannot sell ${action.item}`]
+                }
+            }
+        }
+
+
+
+
+
+
+
+
+
+        
+/*
+        #if you are in a room with a hidden room requiring a key, unlock it with this
+    def unlockRoom(self, exits):
+        if self.location in self.secretRooms:
+            if self.secretRooms[self.location][2] == False:
+                if self.secretRooms[self.location][1] in self.inv:
+                    print("Room unlocked!")
+                    exits[self.location].append(self.secretRooms[self.location][0])
+                    self.secretRooms[self.location][2] = True
+                else:
+                    print("Do not have the required key")
+            else:
+                print("This room has already been unlocked")
+        else:
+            print("Cannot unlock anything here")
+            */
+
+
+
+
+
+
+
+
+
 
         case 'ADD_MESSAGE': {
             return {
