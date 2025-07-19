@@ -3,8 +3,8 @@
   "name": "Austin Jerich",
   "icons": [
     {
-      "src": "one.jpg",
-      "sizes": "64x64 32x32 24x24 16x16",
+      "src": "75x75_icon.jpg",
+      "sizes": "75x75",
       "type": "image/x-icon"
     }
   ],
