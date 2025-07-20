@@ -135,7 +135,7 @@
     },
     {
         "name": "dank-hall",
-        "exits": ["pyramid", "stair-b", "TDWL-room"],
+        "exits": ["pyramid", "stair-b", "tdwl-room"],
         "floorItems": ["mushroom"],
         "enemies": [],
         "lockedRooms": []
@@ -197,7 +197,7 @@
         "lockedRooms": []
     },
     {
-        "name": "TDWL-room",
+        "name": "tdwl-room",
         "exits": ["dank-hall", "stair-d"],
         "floorItems": ["skooma"],
         "enemies": ["zombie", "ghost"],
@@ -205,10 +205,10 @@
     },
     {
         "name": "stair-d",
-        "exits": ["TDWL-room"],
+        "exits": ["tdwl-room"],
         "floorItems": [""],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": ["room-room", "brown-key", true]
     },
     {
         "name": "lake",
@@ -284,7 +284,7 @@
         "exits": ["lit-hall"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": ["green-room", "green-key", true]
     },
     {
         "name": "green-room",
@@ -358,7 +358,7 @@
     },
     {
         "name": "church",
-        "exits": [],
+        "exits": ["town"],
         "floorItems": [],
         "enemies": [],
         "lockedRooms": []
@@ -453,7 +453,7 @@
         "isBoss": false
     },
     {
-        "name": "mummy1",
+        "name": "gnome-mummy",
         "damage": 3,
         "critChance": 0.15,
         "chanceToHit": 0.5,
@@ -464,7 +464,7 @@
         "isBoss": false
     },
     {
-        "name": "mummy2",
+        "name": "hobbit-mummy",
         "damage": 5,
         "critChance": 0.25,
         "chanceToHit": 0.6,
@@ -475,7 +475,7 @@
         "isBoss": false
     },
     {
-        "name": "mummy3",
+        "name": "average-mummy",
         "damage": 8,
         "critChance": 0.35,
         "chanceToHit": 0.7,
@@ -486,7 +486,7 @@
         "isBoss": false
     },
     {
-        "name": "mummy4",
+        "name": "ronnie-mummy",
         "damage": 10,
         "critChance": 0.45,
         "chanceToHit": 0.8,
@@ -497,7 +497,7 @@
         "isBoss": false
     },
     {
-        "name": "mummy5",
+        "name": "andre-the-giant-mummy",
         "damage": 13,
         "critChance": 0.6,
         "chanceToHit": 0.9,
