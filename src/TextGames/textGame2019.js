@@ -22,7 +22,7 @@ export function useGameLogic() {
     }
 
     function processCommand(cmd) {
-        if(!state.awaitingBuyInput && !state.awaitingSellInput){
+        if(!state.awaitingBuyInput && !state.awaitingSellInput && !state.inCombat){
             if (cmd === 'help'){
                 dispatch({ type: 'HELP' });
             }
@@ -77,6 +77,10 @@ export function useGameLogic() {
             else if(cmd === 'jump'){
                 dispatch({ type: 'JUMP' })
             }
+            else if(cmd.startsWith('a ') || cmd.startsWith('attack ')){
+                const enemy = cmd.split(' ')[1]
+                dispatch({ type: 'ATTACK', enemy })
+            }
             else {
                 dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." });
             }
@@ -88,6 +92,10 @@ export function useGameLogic() {
         else if(state.awaitingSellInput){
             const item = cmd
             dispatch({ type: 'SELL_STEP_2', item })
+        }
+        else if(state.inCombat){
+            const attackStrength = cmd
+            dispatch({ type: 'COMBAT_ROUND', attackStrength })
         }
     }
 

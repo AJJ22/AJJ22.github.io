@@ -142,7 +142,7 @@ const baseHP = initialBaseHP //need this so i don't stack strength bonuses on to
 const healthScaling = 7/10 //the smaller this is, the faster HP will grow
 //i want the baseHP to affect the strength bonus health. (the more baseHP you have, the more benefit you get from strength) 
 const maxHp = baseHP + Math.round(strength * (baseHP / (initialBaseHP * healthScaling)))
-const currentHP = maxHp /2 //this will be how i track hp in battles, if you take damage, remove from here
+const currentHP = maxHp //this will be how i track hp in battles, if you take damage, remove from here
 
 const totalCrit = .2 //chance to critically strike after everything has been factored in
 const baseCrit = .2 * (strength/initialStrength) //only modified by stat pots and temporary bosts
@@ -155,12 +155,12 @@ const baseChanceToHit = Math.round((.7 + dex * .005) * 100) / 100 //base % chanc
 const totalChanceToHit = baseChanceToHit //chanceToHit after all modifiers
 
 const armorStat = 5 //damage reduction stat can be increased with potions
-const armorPiece = "" //what armor piece you are currently wearing
+const armorPiece = "leather-armor" //what armor piece you are currently wearing
 const armor = armorStat + armorMap[armorPiece].armorValue //total damage reduction for calculating hits
 
-const weapon = ""
+const weapon = "sword"
 
-const location = "cliff"
+const location = "burial-chamber"
 const inv = ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor", "brown-key"]
 const gold = 10
 

@@ -20,7 +20,7 @@
     { "name": "excalibur", "sellValue": 29, "damage": 32, "critChance": 1.5, "chanceToHit": 1.6 }
   ],
   "armor": [
-    { "name": "", "sellValue": 0, "weakness": [], "armorValue": 0 },
+    { "name": "", "sellValue": 0, "weakness": ["heavy", "medium", "light"], "armorValue": 0 },
     { "name": "clothes", "sellValue": 2, "weakness": ["heavy", "medium", "light"], "armorValue": 4 },
     { "name": "leather-armor", "sellValue": 6, "weakness": ["heavy", "medium", "light"], "armorValue": 8 },
     { "name": "dragon-hide", "sellValue": 15, "weakness": ["heavy", "medium", "light"], "armorValue": 12 },
