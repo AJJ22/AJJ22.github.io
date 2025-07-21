@@ -360,7 +360,7 @@ export function gameReducer(state, action) {
                     let updatePlayer = {
                         ...player,
                         strength: player.strength + potionMap[action.item].potionValue,
-                        //inv: removeFirstFoundItem(player.inv, action.item)
+                        inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
                     updatePlayer = updateCritChance(updatePlayer)
@@ -808,6 +808,32 @@ export function gameReducer(state, action) {
             }
         }
 
+        /////DO THIS INSTEAD (for attack strengths)
+        //   each armor will have a base armor rating - flat damge reduction
+        //   + an attack type it is strong against and weak against, third will have no modifier
+        //   EX: steel-platemail:
+        //           14 armor rating
+        //           heavy attacks deal 50% damage
+        //           medium attacks deal 100% damage
+        //           light attacks deal 150% damage
+        //
+        //   Enemies weaknesses will be randomized each fight
+
+
+        ///// ATTACK LIST 1
+        // would be nice to have a range of damage: + or - 20% of final damage is random (80-120%)
+        ////SCRAP THIS - need to add in attack speed based on the attack strength lv chosen for that turn
+                            //instead of this, i can give the opponent's next turn buffs/debuffs
+                            //// <UNIT A> USES LIGHT ATTACK - <UNIT B> takes increased damage on <UNIT A>'s next hit, and <UNIT B> does less damage on their next hit
+                            //// <UNIT A> USES HEAVY ATTACK - <UNIT B> gets 100% hit chance and crit buffed to 250% for their next hit
+
+        //attacks will be based off of a base weapon damamge stat
+        //the damage will then be modified by your strength stat
+        //each attack will have a chance to critically strike
+        //you can further choose a light, medium, or heavy attack
+            //light: you will be able to attack twice before the enemy attacks once (also deal reduced damage (60% of normal), and have less hit chance (70% of normal))
+            //medium: average attack, no speed, damage, crit, or hit chance modifiers
+            //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
         case 'COMBAT_ROUND': {
             if(['light', 'medium', 'heavy'].includes(action.attackStrength)){
                 const enemyWeakness = ["light", "medium", "heavy"]
@@ -882,114 +908,6 @@ export function gameReducer(state, action) {
                 }
             }
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-
-####DO THIS INSTEAD (for attack strengths)
-    #   each armor will have a base armor rating - flat damge reduction
-    #   + an attack type it is strong against and weak against, third will have no modifier
-    #   EX: steel-platemail:
-    #           14 armor rating
-    #           heavy attacks deal 50% damage
-    #           medium attacks deal 100% damage
-    #           light attacks deal 150% damage
-    #
-    #   Enemies weaknesses will be randomized each fight
-
-
-    ### ATTACK LIST 1
-    # would be nice to have a range of damage: + or - 20% of final damage is random (80-120%)
-    #####SCRAP THIS - need to add in attack speed based on the attack strength lv chosen for that turn
-                        ##instead of this, i can give the opponent's next turn buffs/debuffs
-                        #### <UNIT A> USES LIGHT ATTACK - <UNIT B> takes increased damage on <UNIT A>'s next hit, and <UNIT B> does less damage on their next hit
-                        #### <UNIT A> USES HEAVY ATTACK - <UNIT B> gets 100% hit chance and crit buffed to 250% for their next hit
-
-    #attacks will be based off of a base weapon damamge stat
-    #the damage will then be modified by your strength stat
-    #each attack will have a chance to critically strike
-    #you can further choose a light, medium, or heavy attack
-        #light: you will be able to attack twice before the enemy attacks once (also deal reduced damage (60% of normal), and have less hit chance (70% of normal))
-        #medium: average attack, no speed, damage, crit, or hit chance modifiers
-        #heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
-    
-    
-    
-    
-    
-    def attack(self, enemy):
-        if enemy not in enemiesLocation[self.location]:
-            print("No such enemy!")
-            return
-        if self.weapon == "":
-            print("Please equip a weapon")
-            return
-        #enemies[Damage, Crit Chance, Chance to Hit, HP, gold drop]
-        enemyHP = enemies[enemy][3]
-        enemyDmg = enemies[enemy][0]
-        playerTurn = True
-
-        enemyWeakness = ["light", "medium", "heavy"]
-        random.shuffle(enemyWeakness)
-
-        while enemyHP and self.currentHP > 0:
-            if playerTurn: #players turn
-                print()
-                type = input("Choose an attack strength (light, medium, heavy): ")
-                if type == "light" or type == "medium" or type == "heavy":
-                    enemyHP -= self.calculateDamage(weapons[self.weapon][0], type, playerTurn, enemy, enemyHP, enemyWeakness)
-                else:
-                    print("Lost your turn! (^:")
-
-            else: #enemy's turn
-                #randomly choose attack strength 
-                self.currentHP -= self.calculateDamage(enemyDmg, random.choices(enemyDmgType[enemy], [.6, .15, .15])[0], playerTurn, enemy, enemyHP, armorWeakness[self.armorPiece])
-
-            # check if player or enemy is dead
-            if enemyHP <= 0:
-                self.reward(enemy)
-                print("You have vanquished the enemy! Congratulations!")
-                if enemy in bosses:
-                    self.addTownToExits()
-                    self.removeBoss(enemy)
-                return True
-            elif self.currentHP <= 0:
-                print("\nYou have died! Oh no!")
-                return False
-
-            #change to other person's turn
-            playerTurn = not playerTurn
-
-*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
         case 'ADD_MESSAGE': {
             return {
