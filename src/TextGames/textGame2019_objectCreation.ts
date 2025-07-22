@@ -1,7 +1,7 @@
 import data from './textGame2019_Data.json';
 
 ////// CRITICAL STRIKE CHANCE
-// modified by weapon crit chance only
+// modified by weapon crit chance and strength
 
 ////// CHANCE TO HIT
 // modified by weapon chance to hit (weapon chanceToHit * base chanceToHit)
@@ -23,9 +23,11 @@ interface Character{
     currentHP: number; //this will be how i track hp in battles, if you take damage, remove from here
     //beforeStrengthHP = hp //initial HP pool that will be added to with potions
     strength: number; //used for damage modifier and health
+    initialStrength: number; //used to track where strength started so that the baseCrit bonus from strength will scale
 
     totalCrit: number; //chance to critically strike after everything has been factored in
-    baseCrit: number //only modified by stat pots and temporary bosts
+    baseCrit: number; //only modified by stat pots and temporary bosts
+    strengthToCritScaling: number; // the larger the number, the slower total crit chance will scale
 
     dex: number; //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
                     //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
@@ -85,7 +87,7 @@ interface Location{
     exits: string[]
     floorItems: string[]
     enemies: string[]
-    lockedRooms: string[]
+    lockedRooms: any[]
     itemsForSale?: string[]
 }
 /*
@@ -124,14 +126,6 @@ export const potionMap: Record<string, Potion> = Object.fromEntries(potions.map(
 
 const keys: Key[] = data.keys;
 export const keyMap: Record<string, Key> = Object.fromEntries(keys.map(k => [k.name, k]))
-/*
-export const itemMap = {
-    ...weaponMap,
-    ...armorMap,
-    ...foodMap,
-    ...potionMap,
-    ...keyMap
-}*/
 
 const locations: Location[] = data.locations;
 export const locationMap: Record<string, Location> = Object.fromEntries(locations.map(l => [l.name, l]));
@@ -141,36 +135,38 @@ export const enemyMap: Record<string, Enemy> = Object.fromEntries(enemies.map(e 
 
 
 
-var strength = 7 //used for damage modifier and health
-var initialBaseHP = 15 //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
-var baseHP = initialBaseHP //need this so i don't stack strength bonuses on top of eachother
-var healthScaling = 7/10 //the smaller this is, the faster HP will grow
+const strength = 7 //used for damage modifier and health
+const initialStrength = strength //used to track where strength started so that the baseCrit bonus from strength will scale
+const initialBaseHP = 15 //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
+const baseHP = initialBaseHP //need this so i don't stack strength bonuses on top of eachother
+const healthScaling = 7/10 //the smaller this is, the faster HP will grow
 //i want the baseHP to affect the strength bonus health. (the more baseHP you have, the more benefit you get from strength) 
-var maxHp = baseHP + Math.round(strength * (baseHP / (initialBaseHP * healthScaling)))
-var currentHP = maxHp /2 //this will be how i track hp in battles, if you take damage, remove from here
+const maxHp = baseHP + Math.round(strength * (baseHP / (initialBaseHP * healthScaling)))
+const currentHP = maxHp /2 //this will be how i track hp in battles, if you take damage, remove from here
 
-var totalCrit = .2 //chance to critically strike after everything has been factored in
-var baseCrit = .2 //only modified by stat pots and temporary bosts
+const totalCrit = .2 //chance to critically strike after everything has been factored in
+const baseCrit = .2 * (strength/initialStrength) //only modified by stat pots and temporary bosts
+const strengthToCritScaling = 2 // the larger the number, the slower total crit chance will scale
 
-var dex = 10 //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
+const dex = 10 //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
                 //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
 
-var baseChanceToHit = Math.round((.7 + dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
-var totalChanceToHit = baseChanceToHit //chanceToHit after all modifiers
+const baseChanceToHit = Math.round((.7 + dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
+const totalChanceToHit = baseChanceToHit //chanceToHit after all modifiers
 
-var armorStat = 5 //damage reduction stat can be increased with potions
-var armorPiece = "" //what armor piece you are currently wearing
-var armor = armorStat + armorMap[armorPiece].armorValue //total damage reduction for calculating hits
+const armorStat = 5 //damage reduction stat can be increased with potions
+const armorPiece = "" //what armor piece you are currently wearing
+const armor = armorStat + armorMap[armorPiece].armorValue //total damage reduction for calculating hits
 
-var weapon = ""
+const weapon = ""
 
-var location = "town"
-var inv = ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]
-var gold = 10
+const location = "cliff"
+const inv = ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor", "brown-key"]
+const gold = 10
 
 
-export const player: Character = {initialBaseHP, baseHP, healthScaling, maxHp, currentHP, strength, totalCrit, baseCrit, dex, 
-    baseChanceToHit, totalChanceToHit, armorStat, armorPiece, armor, weapon, location, inv, gold}
+export const player: Character = {initialBaseHP, baseHP, healthScaling, maxHp, currentHP, strength, initialStrength, totalCrit, 
+    baseCrit, strengthToCritScaling, dex, baseChanceToHit, totalChanceToHit, armorStat, armorPiece, armor, weapon, location, inv, gold}
 
 
 
@@ -246,7 +242,7 @@ export const helpMsg = "---- COMMANDS ----\n" +
                 "  buy / sell        (when in store)\n" +
                 "  open-coffin       (where applicable)\n" +
                 "  unlock            (when near hidden room)\n" +
-                "  rest              (when in house)\n" +
+                "  rest              (when at home)\n" +
                 "  jump              (where applicable)\n" +
                 
                 "  mv    <location>: (move)\n" +

@@ -9,7 +9,7 @@ export const initialState = {
 };
 
 export function gameReducer(state, action) {
-    const { player, locationMap } = state;
+    const { player, locationMap } = state
 
     let removeFirstFoundItem = (arr, item) => {
         const index = arr.indexOf(item)
@@ -38,7 +38,7 @@ export function gameReducer(state, action) {
         return {
             ...player,
             armor: player.armorStat + armorMap[player.armorPiece].armorValue
-        };
+        }
     }
 
     function updateHP(player){
@@ -67,14 +67,32 @@ export function gameReducer(state, action) {
         if (player.weapon !== ""){
             return{
                 ...player,
-                totalCrit: Math.round((player.baseCrit * weaponMap[player.weapon].critChance) * 100) / 100
+                totalCrit: Math.round(((player.baseCrit * ((player.strength/player.initialStrength)/player.strengthToCritScaling)) * weaponMap[player.weapon].critChance) * 100) / 100
             }
         }
         else{
             return{
                 ...player,
-                totalCrit: player.baseCrit
+                totalCrit: Math.round(player.baseCrit * ((player.strength/player.initialStrength)/player.strengthToCritScaling) * 100) / 100
             }
+        }
+    }
+
+    //TODO: use this in the attack function when defeating bosses
+    function addTownToExits(){
+        const updateLocation = {
+            ...locationMap[player.location],
+            exits: locationMap[player.location].exits.concat('town')
+        }
+        const updateLocationMap = {
+            ...locationMap,
+            [player.location]: updateLocation
+        }
+
+        return{
+            ...state,
+            locationMap: updateLocationMap,
+            messages: [...state.messages, `You can now travel to town from this location.`]
         }
     }
 
@@ -87,7 +105,6 @@ export function gameReducer(state, action) {
         }
 
         case 'LOOK': {
-            const { player } = state;
             const enemiesHere = locationMap[player.location].enemies;
             return {
                 ...state,
@@ -117,8 +134,8 @@ export function gameReducer(state, action) {
                     `Strength: ${player.strength}`,
                     `Dexterity: ${player.dex}`,
                     `Armor: ${player.armor}`,
-                    `Crit Chance: ${player.totalCrit}`,
-                    `Chance to Hit: ${player.totalChanceToHit}`,
+                    `Crit Chance: ${player.totalCrit * 100}%`,
+                    `Chance to Hit: ${player.totalChanceToHit * 100}%`,
                     `Weapon Equipped: ${player.weapon || 'None'}`,
                     `Armor Equipped: ${player.armorPiece || 'None'}`,
                     //``,
@@ -218,9 +235,10 @@ export function gameReducer(state, action) {
                     let updatePlayer = {
                         ...player,
                         strength: player.strength + potionMap[action.item].potionValue,
-                        inv: removeFirstFoundItem(player.inv, action.item)
+                        //inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
+                    updatePlayer = updateCritChance(updatePlayer)
 
                     return{
                         ...state,
@@ -497,40 +515,135 @@ export function gameReducer(state, action) {
             }
         }
 
+        case 'UNLOCK_ROOM': {
+            const lockedRoom = locationMap[player.location].lockedRooms[0]
+            const roomIsLocked = locationMap[player.location].lockedRooms[2]
+            const key = locationMap[player.location].lockedRooms[1]
 
+            if(lockedRoom){
+                if(roomIsLocked){
+                    if(player.inv.includes(key)){
+                        const updatePlayer = {
+                            ...player,
+                            inv: removeFirstFoundItem(player.inv, key)
+                        }
+                        const updateLocation = {
+                            ...locationMap[player.location],
+                            exits: locationMap[player.location].exits.concat(lockedRoom),
+                            lockedRooms: [
+                                locationMap[player.location].lockedRooms[0],
+                                locationMap[player.location].lockedRooms[1],
+                                false
+                            ]
+                        }
+                        const updateLocationMap = {
+                            ...locationMap,
+                            [player.location]: updateLocation
+                        }
 
+                        return{
+                            ...state,
+                            player: updatePlayer,
+                            locationMap: updateLocationMap,
+                            messages: [...state.messages, `You unlock the ${lockedRoom}`]
+                        }
+                    }
+                    else{
+                        return{
+                            ...state,
+                            messages: [...state.messages, `You don't have the required key.`]
+                        }
+                    }
+                }
+                else{
+                    return{
+                        ...state,
+                        messages: [...state.messages, `The room is already unlocked.`]
+                    }
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, `There is nothing to unlock here.`]
+                }
+            }
+        }
 
+        case 'REST': {
+            if(player.location === 'house'){
+                const updatePlayer = {
+                    ...player,
+                    currentHP: player.maxHp
+                }
 
+                return{
+                    ...state,
+                    player: updatePlayer,
+                    messages: [...state.messages, `You are restored to max HP.`]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, `You cannot rest here.`]
+                }
+            }
+        }
 
+        case 'OPEN_COFFIN': {
+            if(player.location === 'burial-chamber'){
+                const coffinMummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
+                const randomMummy = coffinMummies[Math.floor(Math.random() * coffinMummies.length)]
 
+                const updateLocation = {
+                    ...locationMap[player.location],
+                    enemies: locationMap[player.location].enemies.concat(randomMummy)
+                }
 
+                const updateLocationMap = {
+                    ...locationMap,
+                    [player.location]: updateLocation
+                }
 
-        
-/*
-        #if you are in a room with a hidden room requiring a key, unlock it with this
-    def unlockRoom(self, exits):
-        if self.location in self.secretRooms:
-            if self.secretRooms[self.location][2] == False:
-                if self.secretRooms[self.location][1] in self.inv:
-                    print("Room unlocked!")
-                    exits[self.location].append(self.secretRooms[self.location][0])
-                    self.secretRooms[self.location][2] = True
-                else:
-                    print("Do not have the required key")
-            else:
-                print("This room has already been unlocked")
-        else:
-            print("Cannot unlock anything here")
-            */
+                //TODO: force an attack here with the randomMummy. probably change the inCombat flag to true, and provide the mummy name
+                //TODO: the attack function also has to handle removing the mummy after its been defeated. and adding the key to player.inv based on random number
+                return{
+                    ...state,
+                    locationMap: updateLocationMap,
+                    messages: [...state.messages, `${randomMummy} is attacking!`]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, `There is nothing to open here.`]
+                }
+            }
+        }
 
+        case 'JUMP': {
+            if(player.location === 'cliff'){
+                const updatePlayer = {
+                    ...player,
+                    currentHP: 1,
+                    location: 'woods',
+                    inv: player.inv.concat('green-key')
+                }
 
-
-
-
-
-
-
-
+                return{
+                    ...state,
+                    player: updatePlayer,
+                    messages: [...state.messages, `You jump off the cliff, barely surviving the fall. You pick up an intriguing looking 'green-key' laying on the ground.`]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, `There is nowhere to jump to.`]
+                }
+            }
+        }
 
         case 'ADD_MESSAGE': {
             return {

@@ -1,5 +1,6 @@
 import { useReducer, useState } from 'react';
 import { gameReducer, initialState } from './textGame2019_characterHandler.ts';
+//import { locationMap } from './textGame2019_objectCreation.ts';
 
 export function useGameLogic() {
     const [inputValue, setInputValue] = useState('');
@@ -63,6 +64,18 @@ export function useGameLogic() {
             }
             else if(cmd === 'sell'){
                 dispatch({ type: 'SELL_STEP_1' })
+            }
+            else if(cmd === 'unlock'){
+                dispatch({ type: 'UNLOCK_ROOM' })
+            }
+            else if(cmd === 'rest'){
+                dispatch({ type: 'REST' })
+            }
+            else if(cmd === 'open-coffin'){
+                dispatch({ type: 'OPEN_COFFIN' })
+            }
+            else if(cmd === 'jump'){
+                dispatch({ type: 'JUMP' })
             }
             else {
                 dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." });
