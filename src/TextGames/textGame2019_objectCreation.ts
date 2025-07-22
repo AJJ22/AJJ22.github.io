@@ -1,11 +1,15 @@
 import data from './textGame2019_Data.json';
 
 ////// CRITICAL STRIKE CHANCE
-// modified by weapon crit chance and strength
+// modified by weapon crit chance
 
 ////// CHANCE TO HIT
 // modified by weapon chance to hit (weapon chanceToHit * base chanceToHit)
 // and dexterity (0.05% / 10 dex)
+
+////// BASE DAMAGE
+// modified by weapon chance to hit (weapon chanceToHit * base chanceToHit)
+// and strength (weapon baseDamge + (strength * strengthToBaseDamageScaling))
 
 ////// HP
 // modified by stat pots (2 HP / pot)
@@ -23,11 +27,10 @@ interface Character{
     currentHP: number; //this will be how i track hp in battles, if you take damage, remove from here
     //beforeStrengthHP = hp //initial HP pool that will be added to with potions
     strength: number; //used for damage modifier and health
-    initialStrength: number; //used to track where strength started so that the baseCrit bonus from strength will scale
+    strengthToBaseDamageScaling: number;
 
     totalCrit: number; //chance to critically strike after everything has been factored in
     baseCrit: number; //only modified by stat pots and temporary bosts
-    strengthToCritScaling: number; // the larger the number, the slower total crit chance will scale
 
     dex: number; //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
                     //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
@@ -136,17 +139,16 @@ export const enemyMap: Record<string, Enemy> = Object.fromEntries(enemies.map(e 
 
 
 const strength = 7 //used for damage modifier and health
-const initialStrength = strength //used to track where strength started so that the baseCrit bonus from strength will scale
+const strengthToBaseDamageScaling = 1/2 //we multiply strength by this fraction, then add it to the baseDamage of an attack (smaller the fraction, less bonus damage player gets)
 const initialBaseHP = 15 //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
 const baseHP = initialBaseHP //need this so i don't stack strength bonuses on top of eachother
 const healthScaling = 7/10 //the smaller this is, the faster HP will grow
-//i want the baseHP to affect the strength bonus health. (the more baseHP you have, the more benefit you get from strength) 
+//i want the baseHP to affect the strength bonus health. (the more baseHP you have, the more benefit you get from strength)
 const maxHp = baseHP + Math.round(strength * (baseHP / (initialBaseHP * healthScaling)))
-const currentHP = maxHp /2 //this will be how i track hp in battles, if you take damage, remove from here
+const currentHP = maxHp //this will be how i track hp in battles, if you take damage, remove from here
 
 const totalCrit = .2 //chance to critically strike after everything has been factored in
-const baseCrit = .2 * (strength/initialStrength) //only modified by stat pots and temporary bosts
-const strengthToCritScaling = 2 // the larger the number, the slower total crit chance will scale
+const baseCrit = .2 //only modified by stat pots and temporary bosts
 
 const dex = 10 //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
                 //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
@@ -155,18 +157,18 @@ const baseChanceToHit = Math.round((.7 + dex * .005) * 100) / 100 //base % chanc
 const totalChanceToHit = baseChanceToHit //chanceToHit after all modifiers
 
 const armorStat = 5 //damage reduction stat can be increased with potions
-const armorPiece = "" //what armor piece you are currently wearing
+const armorPiece = "clothes" //what armor piece you are currently wearing
 const armor = armorStat + armorMap[armorPiece].armorValue //total damage reduction for calculating hits
 
-const weapon = ""
+const weapon = "knife"
 
-const location = "cliff"
-const inv = ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor", "brown-key"]
+const location = "town"
+const inv = []
 const gold = 10
 
 
-export const player: Character = {initialBaseHP, baseHP, healthScaling, maxHp, currentHP, strength, initialStrength, totalCrit, 
-    baseCrit, strengthToCritScaling, dex, baseChanceToHit, totalChanceToHit, armorStat, armorPiece, armor, weapon, location, inv, gold}
+export const player: Character = {initialBaseHP, baseHP, healthScaling, maxHp, currentHP, strength, strengthToBaseDamageScaling, totalCrit, 
+    baseCrit, dex, baseChanceToHit, totalChanceToHit, armorStat, armorPiece, armor, weapon, location, inv, gold}
 
 
 

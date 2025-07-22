@@ -20,9 +20,9 @@
     { "name": "excalibur", "sellValue": 29, "damage": 32, "critChance": 1.5, "chanceToHit": 1.6 }
   ],
   "armor": [
-    { "name": "", "sellValue": 0, "weakness": [], "armorValue": 0 },
-    { "name": "clothes", "sellValue": 2, "weakness": ["heavy", "medium", "light"], "armorValue": 4 },
-    { "name": "leather-armor", "sellValue": 6, "weakness": ["heavy", "medium", "light"], "armorValue": 8 },
+    { "name": "", "sellValue": 0, "weakness": ["heavy", "medium", "light"], "armorValue": 0 },
+    { "name": "clothes", "sellValue": 2, "weakness": ["heavy", "medium", "light"], "armorValue": 2 },
+    { "name": "leather-armor", "sellValue": 6, "weakness": ["heavy", "medium", "light"], "armorValue": 5 },
     { "name": "dragon-hide", "sellValue": 15, "weakness": ["heavy", "medium", "light"], "armorValue": 12 },
     { "name": "light-chainmail", "sellValue": 2, "weakness": ["light", "heavy", "medium"], "armorValue": 7 },
     { "name": "heavy-chainmail", "sellValue": 6, "weakness": ["light", "heavy", "medium"], "armorValue": 11 },
@@ -212,7 +212,7 @@
     },
     {
         "name": "lake",
-        "exits": [],
+        "exits": ["town"],
         "floorItems": [],
         "enemies": [],
         "lockedRooms": []
@@ -260,14 +260,14 @@
     },
     {
         "name": "cave",
-        "exits": ["path", "underground-sea", "lit-hall"],
+        "exits": ["path", "underground-lake", "lit-hall"],
         "floorItems": [],
         "enemies": [],
         "lockedRooms": []
     },
     {
         "name": "underground-lake",
-        "exits": [],
+        "exits": ["cave"],
         "floorItems": [],
         "enemies": [],
         "lockedRooms": []

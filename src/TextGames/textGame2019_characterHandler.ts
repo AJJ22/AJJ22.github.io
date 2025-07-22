@@ -2,15 +2,22 @@ import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locat
 
 export const initialState = {
     player, //new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
+    initialPlayer: player,
     locationMap,
+    initialLocationMap: locationMap,
     messages: ["Type 'help' for a list of commands"],
     awaitingBuyInput: false,
-    awaitingSellInput: false
+    awaitingSellInput: false,
+    inCombat: false,
+    enemyName: '',
+    enemyHP: 0,
+    brownKeyDropped: false
 };
 
 export function gameReducer(state, action) {
     const { player, locationMap } = state
 
+    //#region Helper Functions
     let removeFirstFoundItem = (arr, item) => {
         const index = arr.indexOf(item)
 
@@ -23,14 +30,39 @@ export function gameReducer(state, action) {
     let isAPotion = (item) => {
         return (['dex-pot', 'str-pot', 'hp-pot', 'armor-pot'].includes(item))
     }
-/*
-    function isArmor(obj: any) {
-        return 'armorValue' in obj && 'weakness' in obj
+
+    function shuffle(array) {
+        let currentIndex = array.length;
+
+        // While there remain elements to shuffle...
+        while (currentIndex !== 0) {
+
+            // Pick a remaining element...
+            let randomIndex = Math.floor(Math.random() * currentIndex);
+            currentIndex--;
+
+            // And swap it with the current element.
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+        }
     }
 
-    function isWeapon(obj: any) {
-        return 'critChance' in obj && 'sellValue' in obj
-    }*/
+    function pickRandomItemWithWeights(items, weights) {
+        var i;
+
+        for (i = 1; i < weights.length; i++)
+            weights[i] += weights[i - 1];
+        
+        var random = Math.random() * weights[weights.length - 1];
+        
+        for (i = 0; i < weights.length; i++)
+            if (weights[i] > random)
+                break;
+        
+        return items[i];
+    }
+    //#endregion
+
+    //#region Update Player Stats
 
     //when you change something that affects a stat, these should be used
     //such as changing weapons/armor or increasing strength/dexterity/hp/armor with pots
@@ -67,35 +99,121 @@ export function gameReducer(state, action) {
         if (player.weapon !== ""){
             return{
                 ...player,
-                totalCrit: Math.round(((player.baseCrit * ((player.strength/player.initialStrength)/player.strengthToCritScaling)) * weaponMap[player.weapon].critChance) * 100) / 100
+                totalCrit: Math.round((player.baseCrit * weaponMap[player.weapon].critChance) * 100) / 100
             }
         }
         else{
             return{
                 ...player,
-                totalCrit: Math.round(player.baseCrit * ((player.strength/player.initialStrength)/player.strengthToCritScaling) * 100) / 100
+                totalCrit: Math.round(player.baseCrit * 100) / 100
             }
         }
     }
+    //#endregion
 
-    //TODO: use this in the attack function when defeating bosses
-    function addTownToExits(){
+    //#region Update State Functions
+    function addLocationToExits(locationMap, location){
         const updateLocation = {
             ...locationMap[player.location],
-            exits: locationMap[player.location].exits.concat('town')
+            exits: locationMap[player.location].exits.concat(location)
         }
         const updateLocationMap = {
             ...locationMap,
             [player.location]: updateLocation
         }
 
-        return{
-            ...state,
-            locationMap: updateLocationMap,
-            messages: [...state.messages, `You can now travel to town from this location.`]
-        }
+        return [updateLocationMap, `You can now travel to ${location} from this location.`]
     }
 
+    function removeBoss(locationMap, enemyName){
+        const updateLocation = {
+            ...locationMap[player.location],
+            enemies: removeFirstFoundItem(locationMap[player.location].enemies, enemyName)
+        }
+        const updateLocationMap = {
+            ...locationMap,
+            [player.location]: updateLocation
+        }
+
+        return updateLocationMap
+    }
+    //#endregion
+
+    //#region CalculateDamage
+    function calculateDamage(baseDamage, attackStrength, critChance, enemyName, weakness, playerTurn){
+        //these wil be changed based on what attack strength the current person used
+        //////[increase dmg taken, reduce dmg given, accuracy, crit]
+        // Heavy: opponent gets 100% accuracy & 250% increased crit
+        // light: opponent takes 130% increased damage for your next hit & opponent deals 80% damage on their next hit
+
+        if(!hit(attackStrength, playerTurn, enemyName)){ return [-1, false] }
+
+        const increasedDmgBasedOnType = {
+            "heavy": 1.3,
+            "medium": 1,
+            "light": .8
+        }
+
+        //calculate multiplier for: weakness to attack type
+        //if enemy is weak to light attack and this attack is light, 1.55 dmg boost
+        let weakMult
+        const index = weakness.indexOf(attackStrength)
+        // if player is not wearing armor, weak to all attack types
+        if (!playerTurn && player.armorPiece === ""){
+            weakMult = [1.55, 1.55, 1.55]
+        }
+        else{
+            weakMult = [1.55, 1, .6]
+        }
+        const weaknessMultiplier = weakMult[index]
+
+        //add crit onto damage before returning final number
+        const [damageAfterCritCalc, isACrit] = crit(baseDamage * increasedDmgBasedOnType[attackStrength], critChance, attackStrength)
+        let finalDamage = Math.round(weaknessMultiplier * damageAfterCritCalc)
+        //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them (rat - leather armor) rat should be able to deal damage here
+        finalDamage = !playerTurn ? finalDamage - player.armor : finalDamage
+
+        return finalDamage < 0 ? [0, isACrit] : [finalDamage, isACrit]
+    }
+
+    function crit(baseDamage, critChance, attackStrength){
+        const critChanceBasedOnAttackStrength = {
+            "heavy": 1.15,
+            "medium": 1,
+            "light": .85
+        }
+
+        if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
+            //console.log('CRIT!')
+            return [baseDamage * 1.75, true]
+        }
+        return [baseDamage, false]
+    }
+
+    //calculate if hit or miss
+    // player can increase their dodge chance by increasing dex
+    //   currently at 1% dodge chance / 1 dex (maybe think about reducing this to 1% / 2 dex)
+    function hit(attackStrength, playerTurn, enemyName){
+        ////// CHANCE TO HIT MODIFIERS - based on attack strength
+        // heavy: 120%
+        // medium: 100%
+        // light: 80%
+        const hitChanceBasedOnAttackStrength = {
+            "heavy": .75,
+            "medium": 1,
+            "light": 1.25
+        }
+        
+        const genericChanceToHit = playerTurn ? player.totalChanceToHit : enemyMap[enemyName].chanceToHit * (1 - (.01*player.dex))
+        const hitChanceForCurrentAttack = genericChanceToHit * hitChanceBasedOnAttackStrength[attackStrength]
+        
+        return hitChanceForCurrentAttack > Math.random()
+    }
+    //#endregion
+
+
+
+    //#region Command Logic
     switch (action.type) {
         case 'HELP': {
             return {
@@ -235,10 +353,9 @@ export function gameReducer(state, action) {
                     let updatePlayer = {
                         ...player,
                         strength: player.strength + potionMap[action.item].potionValue,
-                        //inv: removeFirstFoundItem(player.inv, action.item)
+                        inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
-                    updatePlayer = updateCritChance(updatePlayer)
 
                     return{
                         ...state,
@@ -593,25 +710,36 @@ export function gameReducer(state, action) {
 
         case 'OPEN_COFFIN': {
             if(player.location === 'burial-chamber'){
-                const coffinMummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
-                const randomMummy = coffinMummies[Math.floor(Math.random() * coffinMummies.length)]
+                if(player.weapon !== ''){
+                    const coffinMummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
+                    const randomMummy = coffinMummies[Math.floor(Math.random() * coffinMummies.length)]
 
-                const updateLocation = {
-                    ...locationMap[player.location],
-                    enemies: locationMap[player.location].enemies.concat(randomMummy)
+                    const updateLocation = {
+                        ...locationMap[player.location],
+                        enemies: locationMap[player.location].enemies.concat(randomMummy)
+                    }
+
+                    const updateLocationMap = {
+                        ...locationMap,
+                        [player.location]: updateLocation
+                    }
+
+                    return{
+                        ...state,
+                        locationMap: updateLocationMap,
+                        inCombat: true,
+                        enemyName: randomMummy,
+                        enemyHP: enemyMap[randomMummy].hp,
+                        messages: [...state.messages, `${randomMummy} is attacking!\n` +
+                            `Choose an attack strength (light, medium, heavy)`
+                        ]
+                    }
                 }
-
-                const updateLocationMap = {
-                    ...locationMap,
-                    [player.location]: updateLocation
-                }
-
-                //TODO: force an attack here with the randomMummy. probably change the inCombat flag to true, and provide the mummy name
-                //TODO: the attack function also has to handle removing the mummy after its been defeated. and adding the key to player.inv based on random number
-                return{
-                    ...state,
-                    locationMap: updateLocationMap,
-                    messages: [...state.messages, `${randomMummy} is attacking!`]
+                else{
+                    return{
+                        ...state,
+                        messages: [...state.messages, `You should probably equip a weapon first.`]
+                    }
                 }
             }
             else{
@@ -645,6 +773,176 @@ export function gameReducer(state, action) {
             }
         }
 
+        case 'ATTACK': {
+            if(locationMap[player.location].enemies.includes(action.enemy)){
+                if(player.weapon !== ''){
+                    return{
+                        ...state,
+                        inCombat: true,
+                        enemyHP: enemyMap[action.enemy].hp,
+                        enemyName: action.enemy,
+                        messages: [...state.messages, `Attacking ${action.enemy}\n` +
+                            `Choose an attack strength (light, medium, heavy)`
+                        ]
+                    }
+                }
+                else{
+                    return{
+                        ...state,
+                        inCombat: false,
+                        messages: [...state.messages, `You don't have a weapon equiped.`]
+                    }
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    inCombat: false,
+                    messages: [...state.messages, `${action.enemy} does not exist at this location.`]
+                }
+            }
+        }
+
+        /////DO THIS INSTEAD (for attack strengths)
+        //   each armor will have a base armor rating - flat damge reduction
+        //   + an attack type it is strong against and weak against, third will have no modifier
+        //   EX: steel-platemail:
+        //           14 armor rating
+        //           heavy attacks deal 50% damage
+        //           medium attacks deal 100% damage
+        //           light attacks deal 150% damage
+        //
+        //   Enemies weaknesses will be randomized each fight
+
+
+        ///// ATTACK LIST 1
+        // would be nice to have a range of damage: + or - 20% of final damage is random (80-120%)
+        ////SCRAP THIS - need to add in attack speed based on the attack strength lv chosen for that turn
+                            //instead of this, i can give the opponent's next turn buffs/debuffs
+                            //// <UNIT A> USES LIGHT ATTACK - <UNIT B> takes increased damage on <UNIT A>'s next hit, and <UNIT B> does less damage on their next hit
+                            //// <UNIT A> USES HEAVY ATTACK - <UNIT B> gets 100% hit chance and crit buffed to 250% for their next hit
+
+        //attacks will be based off of a base weapon damamge stat
+        //the damage will then be modified by your strength stat
+        //each attack will have a chance to critically strike
+        //you can further choose a light, medium, or heavy attack
+            //light: you will be able to attack twice before the enemy attacks once (also deal reduced damage (60% of normal), and have less hit chance (70% of normal))
+            //medium: average attack, no speed, damage, crit, or hit chance modifiers
+            //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
+        case 'COMBAT_ROUND': {
+            if(['light', 'medium', 'heavy'].includes(action.attackStrength)){
+                const enemyWeakness = ["light", "medium", "heavy"]
+                //TODO: get rid of the need for a shuffle here.
+                //it would be more fun for the player if the enemies had a set weakness, so they can learn how to fight more efficently
+                shuffle(enemyWeakness)
+
+                let playerTurn = true
+                const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
+                const [damageToEnemy, playerHitIsACrit] = calculateDamage(playerBaseDamage, action.attackStrength, player.totalCrit, state.enemyName, enemyWeakness, playerTurn)
+                const playerHitMessage = damageToEnemy === -1 ? 
+                `Your attack misses, dealing 0 damage.\n` :
+                (playerHitIsACrit ?
+                    `You CRIT the ${state.enemyName}, dealing ${damageToEnemy} damage.\n` :
+                    `You deal ${damageToEnemy} damage to the ${state.enemyName}.\n`)
+
+                if(state.enemyHP - damageToEnemy <= 0){
+                    const gold = enemyMap[state.enemyName].gold
+                    var drops = enemyMap[state.enemyName].itemDrops
+                    const keyDropChance = .3
+                    const mummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
+                    var updateLocationMap = {
+                        ...locationMap
+                    }
+
+                    if(mummies.includes(state.enemyName)){
+                        if(keyDropChance > Math.random() && !state.brownKeyDropped){
+                            drops = drops.concat('brown-key')
+                            state.brownKeyDropped = true
+                        }
+                        //remove mummy
+                        const updateLocation = {
+                            ...locationMap[player.location],
+                            enemies: removeFirstFoundItem(locationMap[player.location].enemies, state.enemyName)
+                        }
+                        updateLocationMap = {
+                            ...locationMap,
+                            [player.location]: updateLocation
+                        }
+                    }
+
+                    const updatePlayer = {
+                        ...player,
+                        gold: player.gold + gold,
+                        inv: player.inv.concat(drops)
+                    }
+
+                    let addTownMessage = ''
+                    if(enemyMap[state.enemyName].isBoss){
+                        [updateLocationMap, addTownMessage] = addLocationToExits(updateLocationMap, 'town')
+                        updateLocationMap = removeBoss(updateLocationMap, state.enemyName)
+                    }
+
+                    const dropsString = drops.length > 0 ? ` and${drops.map(d => ' ' + d)}\n` : ``
+
+                    return{
+                        ...state,
+                        inCombat: false,
+                        player: updatePlayer,
+                        locationMap: updateLocationMap,
+                        messages: [...state.messages, playerHitMessage +
+                            `You have killed the ${state.enemyName}.\n` +
+                            `You gain ${gold} gold` + dropsString + addTownMessage
+                        ]
+                    }
+                }
+
+                // ---enemy turn----
+                playerTurn = false
+                const enemyAttackStrength = pickRandomItemWithWeights(enemyMap[state.enemyName].damageType, [.7, .1, .1])
+                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(enemyMap[state.enemyName].damage, enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
+                const enemyHitMessage = damageToPlayer === -1 ? 
+                `The ${state.enemyName} misses you, dealing 0 damage.\n` :
+                (enemyHitIsACrit ? 
+                    `The ${state.enemyName} CRITS you with a ${enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`:
+                    `The ${state.enemyName} hits you with a ${enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`)
+                
+
+                if(player.currentHP - damageToPlayer <= 0){
+                    return{
+                        player: state.initialPlayer,
+                        locationMap: state.initialLocationMap,
+                        messages: [enemyHitMessage + `You have died. :(\nType 'help' for a list of commands`],
+                        awaitingBuyInput: false,
+                        awaitingSellInput: false,
+                        inCombat: false,
+                        enemyName: '',
+                        enemyHP: 0,
+                        brownKeyDropped: false
+                    }
+                }
+
+                const updatePlayer = {
+                    ...player,
+                    currentHP: damageToPlayer > 0 ? player.currentHP - damageToPlayer : player.currentHP
+                }
+
+                return{
+                    ...state,
+                    player: updatePlayer,
+                    inCombat: true,
+                    enemyHP: state.enemyHP - damageToEnemy,
+                    messages: [...state.messages, playerHitMessage + enemyHitMessage]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    inCombat: true,
+                    messages: [...state.messages, `${action.attackStrength} is not an attack strength.`]
+                }
+            }
+        }
+
         case 'ADD_MESSAGE': {
             return {
                 ...state,
@@ -655,4 +953,5 @@ export function gameReducer(state, action) {
         default:
             return state;
     }
+    //#endregion
 }
