@@ -109,7 +109,7 @@ interface Enemy{
     gold: number
     itemDrops: string[]
     damageType: string[]
-    weakness: string
+    weakness: string[]
     isBoss: boolean
 }
 //#endregion
