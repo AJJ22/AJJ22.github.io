@@ -31,6 +31,7 @@ export function gameReducer(state, action) {
         return (['dex-pot', 'str-pot', 'hp-pot', 'armor-pot'].includes(item))
     }
 
+    //TODO: remove if unused
     function shuffle(array) {
         let currentIndex = array.length;
 
@@ -831,14 +832,9 @@ export function gameReducer(state, action) {
             //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
         case 'COMBAT_ROUND': {
             if(['light', 'medium', 'heavy'].includes(action.attackStrength)){
-                const enemyWeakness = ["light", "medium", "heavy"]
-                //TODO: get rid of the need for a shuffle here.
-                //it would be more fun for the player if the enemies had a set weakness, so they can learn how to fight more efficently
-                shuffle(enemyWeakness)
-
                 let playerTurn = true
                 const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
-                const [damageToEnemy, playerHitIsACrit] = calculateDamage(playerBaseDamage, action.attackStrength, player.totalCrit, state.enemyName, enemyWeakness, playerTurn)
+                const [damageToEnemy, playerHitIsACrit] = calculateDamage(playerBaseDamage, action.attackStrength, player.totalCrit, state.enemyName, enemyMap[state.enemyName].weakness, playerTurn)
                 const playerHitMessage = damageToEnemy === -1 ? 
                 `Your attack misses, dealing 0 damage.\n` :
                 (playerHitIsACrit ?

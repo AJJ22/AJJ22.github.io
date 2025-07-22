@@ -384,6 +384,7 @@
         "gold": 3,
         "itemDrops": ["taco"],
         "damageType": ["medium", "heavy", "light"],
+        "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
     {
@@ -395,6 +396,7 @@
         "gold": 1,
         "itemDrops": [],
         "damageType": ["light", "medium", "heavy"],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -406,6 +408,7 @@
         "gold": 0,
         "itemDrops": [],
         "damageType": ["light", "medium", "heavy"],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -417,6 +420,7 @@
         "gold": 11,
         "itemDrops": ["leather-armor"],
         "damageType": ["medium", "heavy", "light"],
+        "weakness": ["medium", "light", "heavy"],
         "isBoss": false
     },
     {
@@ -428,6 +432,7 @@
         "gold": 0,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
     {
@@ -439,6 +444,7 @@
         "gold": 0,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -450,6 +456,7 @@
         "gold": 0,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
     {
@@ -461,6 +468,7 @@
         "gold": 5,
         "itemDrops": [],
         "damageType": ["heavy", "medium", "light"],
+        "weakness": ["light", "medium", "heavy"],
         "isBoss": false
     },
     {
@@ -472,6 +480,7 @@
         "gold": 7,
         "itemDrops": [],
         "damageType": ["medium", "light", "heavy"],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -483,6 +492,7 @@
         "gold": 9,
         "itemDrops": ["leather-armor"],
         "damageType": ["light", "medium", "heavy"],
+        "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
     {
@@ -494,6 +504,7 @@
         "gold": 11,
         "itemDrops": ["bayonet"],
         "damageType": ["heavy", "medium", "light"],
+        "weakness": ["medium", "light", "heavy"],
         "isBoss": false
     },
     {
@@ -505,6 +516,7 @@
         "gold": 13,
         "itemDrops": ["cake", "longsword"],
         "damageType": ["medium", "heavy", "light"],
+        "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
     {
@@ -516,6 +528,7 @@
         "gold": 4,
         "itemDrops": ["sword"],
         "damageType": ["medium", "heavy", "light"],
+        "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
     {
@@ -527,6 +540,7 @@
         "gold": 2,
         "itemDrops": [],
         "damageType": ["light", "medium", "heavy"],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -538,6 +552,7 @@
         "gold": 2,
         "itemDrops": ["clothes"],
         "damageType": ["light", "medium", "heavy"],
+        "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
     {
@@ -549,6 +564,7 @@
         "gold": 35,
         "itemDrops": ["steel-platemail"],
         "damageType": ["light", "medium", "heavy"],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -560,6 +576,7 @@
         "gold": 15,
         "itemDrops": ["heavy-chainmail"],
         "damageType": ["heavy", "medium", "light"],
+        "weakness": ["heavy", "light", "medium"],
         "isBoss": true
     },
     {
@@ -571,6 +588,7 @@
         "gold": 25,
         "itemDrops": ["skooma"],
         "damageType": ["medium", "heavy", "light"],
+        "weakness": ["medium", "heavy", "light"],
         "isBoss": true
     },
     {
@@ -582,6 +600,7 @@
         "gold": 4,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -593,6 +612,7 @@
         "gold": 5,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
@@ -604,6 +624,7 @@
         "gold": 6,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
     {
@@ -615,6 +636,7 @@
         "gold": 8,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
     {
@@ -626,6 +648,7 @@
         "gold": 13,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
     {
@@ -637,6 +660,7 @@
         "gold": 30,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["heavy", "medium", "light"],
         "isBoss": false
     },
     {
@@ -648,6 +672,7 @@
         "gold": 40,
         "itemDrops": [],
         "damageType": [],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": true
     }
   ]
