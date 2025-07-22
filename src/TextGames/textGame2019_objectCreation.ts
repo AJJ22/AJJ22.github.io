@@ -1,4 +1,9 @@
 import data from './textGame2019_Data.json';
+////TODO: BUFF flat enemy dmg, nerf range of chance-based damage. like extra crit dmg, dmgBasedOnType, & weakness dmg
+////      The enemies should have a smaller range of damage, 
+//             EX: right now a rat can do 0 dmg or 20 dmg. the rat should do 7-10 dmg every hit
+//only allow TROOM & hidden room enemies to be killed once. too easy to farm for gold
+
 
 ////// CRITICAL STRIKE CHANCE
 // modified by weapon crit chance
@@ -176,16 +181,20 @@ export const helpMsg = "---- COMMANDS ----\n" +
                 "  l                 (look)\n" +
                 "  s                 (status)\n" +
                 "  inv               (show inventory)\n" +
-                "  buy / sell        (when in store)\n" +
-                "  open-coffin       (where applicable)\n" +
-                "  unlock            (when near hidden room)\n" +
-                "  rest              (when at home)\n" +
-                "  jump              (where applicable)\n" +
-                
-                "  mv    <location>: (move)\n" +
-                "  t     <item>:     (take)\n" +
-                "  d     <item>:     (drop)\n" +
-                "  e     <item>:     (equip)\n" +
-                "  a     <enemy>:    (attack)\n" +
+                "----\n" +
+                "  buy / sell        (open store menu, while at store location)\n" +
+                "  -<item>           (buy / sell item)\n" +
+                "  -'quit', 'exit', 'leave', 'q' (exit store menu)\n" +
+                "----\n" +
+                "  o (open-coffin - where applicable)\n" +
+                "  u (unlock - when near hidden room)\n" +
+                "  r (rest - when at home)\n" +
+                "  j (jump - where applicable)\n" +
+                " ----\n" +
+                "  m     <location>  (move)\n" +
+                "  t     <item>      (take)\n" +
+                "  d     <item>      (drop)\n" +
+                "  e     <item>      (equip)\n" +
+                "  a     <enemy>     (attack)\n" +
                 "  eat   <food>\n" +
                 "  drink <potion>";

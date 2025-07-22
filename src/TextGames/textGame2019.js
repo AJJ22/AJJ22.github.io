@@ -23,10 +23,10 @@ export function useGameLogic() {
 
     function processCommand(cmd) {
         if(!state.awaitingBuyInput && !state.awaitingSellInput && !state.inCombat){
-            if (cmd === 'help'){
+            if (cmd === 'help' || cmd === 'h'){
                 dispatch({ type: 'HELP' });
             }
-            if (cmd === 'look' || cmd === 'l'){
+            else if (cmd === 'look' || cmd === 'l'){
                 dispatch({ type: 'LOOK' });
             }
             else if (cmd === 'inv' || cmd === 'i'){
@@ -35,9 +35,12 @@ export function useGameLogic() {
             else if (cmd === 'status' || cmd === 's'){
                 dispatch({ type: 'STATUS' });
             }
-            else if (cmd.startsWith('mv ')){
+            else if (cmd.startsWith('m ')){
                 const direction = cmd.split(' ')[1];
                 dispatch({ type: 'MOVE', direction });
+            }
+            else if (cmd === 'back' || cmd === 'b'){
+                dispatch({ type: 'BACK' })
             }
             else if (cmd.startsWith('eat ')){
                 const item = cmd.split(' ')[1];
@@ -59,22 +62,22 @@ export function useGameLogic() {
                 const item = cmd.split(' ')[1];
                 dispatch({ type: 'EQUIP', item })
             }
-            else if (cmd === 'buy' || cmd === 'b'){
+            else if (cmd === 'buy'){
                 dispatch({ type: 'BUY_STEP_1' })
             }
             else if(cmd === 'sell'){
                 dispatch({ type: 'SELL_STEP_1' })
             }
-            else if(cmd === 'unlock'){
+            else if(cmd === 'unlock' || cmd === 'u'){
                 dispatch({ type: 'UNLOCK_ROOM' })
             }
-            else if(cmd === 'rest'){
+            else if(cmd === 'rest' || cmd === 'r'){
                 dispatch({ type: 'REST' })
             }
-            else if(cmd === 'open-coffin'){
+            else if(cmd === 'open-coffin' || cmd === 'o'){
                 dispatch({ type: 'OPEN_COFFIN' })
             }
-            else if(cmd === 'jump'){
+            else if(cmd === 'jump' || cmd === 'j'){
                 dispatch({ type: 'JUMP' })
             }
             else if(cmd.startsWith('a ') || cmd.startsWith('attack ')){
@@ -96,6 +99,9 @@ export function useGameLogic() {
         else if(state.inCombat){
             const attackStrength = cmd
             dispatch({ type: 'COMBAT_ROUND', attackStrength })
+        }
+        else {
+            dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." });
         }
     }
 
