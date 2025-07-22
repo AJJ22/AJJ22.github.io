@@ -1,220 +1,26 @@
 import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap } from './textGame2019_objectCreation.ts';
+import { removeFirstFoundItem, isAPotion, updateChanceToHit, updateHP, updateArmor, updateCritChance, calculateDamage, addLocationToExits, 
+    removeBoss, pickRandomItemWithWeights } from './textGame2019_helperFunctions.ts';
 
 export const initialState = {
-    player, //new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
+    player,
     initialPlayer: player,
     locationMap,
     initialLocationMap: locationMap,
-    messages: ["Type 'help' for a list of commands"],
+    previousLocation: '',
+    messages: ["Type 'help' or 'h' for a list of commands"],
     awaitingBuyInput: false,
     awaitingSellInput: false,
     inCombat: false,
     enemyName: '',
     enemyHP: 0,
     brownKeyDropped: false
-};
+}
 
 export function gameReducer(state, action) {
     const { player, locationMap } = state
-
-    //#region Helper Functions
-    let removeFirstFoundItem = (arr, item) => {
-        const index = arr.indexOf(item)
-
-        if (index === -1) {
-            return [...arr]
-        }
-        return arr.filter((element, i) => i !== index)
-    }
-
-    let isAPotion = (item) => {
-        return (['dex-pot', 'str-pot', 'hp-pot', 'armor-pot'].includes(item))
-    }
-
-    //TODO: remove if unused
-    function shuffle(array) {
-        let currentIndex = array.length;
-
-        // While there remain elements to shuffle...
-        while (currentIndex !== 0) {
-
-            // Pick a remaining element...
-            let randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
-
-            // And swap it with the current element.
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-        }
-    }
-
-    function pickRandomItemWithWeights(items, weights) {
-        var i;
-
-        for (i = 1; i < weights.length; i++)
-            weights[i] += weights[i - 1];
-        
-        var random = Math.random() * weights[weights.length - 1];
-        
-        for (i = 0; i < weights.length; i++)
-            if (weights[i] > random)
-                break;
-        
-        return items[i];
-    }
-    //#endregion
-
-    //#region Update Player Stats
-
-    //when you change something that affects a stat, these should be used
-    //such as changing weapons/armor or increasing strength/dexterity/hp/armor with pots
-    function updateArmor(player){
-        return {
-            ...player,
-            armor: player.armorStat + armorMap[player.armorPiece].armorValue
-        }
-    }
-
-    function updateHP(player){
-        return {
-            ...player,
-            maxHp: player.baseHP + Math.round(player.strength * (player.baseHP / (player.initialBaseHP * player.healthScaling)))
-        }
-    }
-
-    function updateChanceToHit(player){
-        if(player.weapon !== ""){
-            return{
-                ...player,
-                totalChanceToHit: Math.round((player.baseChanceToHit * weaponMap[player.weapon].chanceToHit) * 100) / 100
-            }
-        }
-        else{
-            return{
-                ...player,
-                totalChanceToHit: player.baseChanceToHit
-            }
-        }
-    }
+    //TODO: add autocomplete feature? tab will check the command you enter, then loop through the possible 2nd command (items, enemies, locations, etc... based on what you enter first)
     
-    function updateCritChance(player){
-        if (player.weapon !== ""){
-            return{
-                ...player,
-                totalCrit: Math.round((player.baseCrit * weaponMap[player.weapon].critChance) * 100) / 100
-            }
-        }
-        else{
-            return{
-                ...player,
-                totalCrit: Math.round(player.baseCrit * 100) / 100
-            }
-        }
-    }
-    //#endregion
-
-    //#region Update State Functions
-    function addLocationToExits(locationMap, location){
-        const updateLocation = {
-            ...locationMap[player.location],
-            exits: locationMap[player.location].exits.concat(location)
-        }
-        const updateLocationMap = {
-            ...locationMap,
-            [player.location]: updateLocation
-        }
-
-        return [updateLocationMap, `You can now travel to ${location} from this location.`]
-    }
-
-    function removeBoss(locationMap, enemyName){
-        const updateLocation = {
-            ...locationMap[player.location],
-            enemies: removeFirstFoundItem(locationMap[player.location].enemies, enemyName)
-        }
-        const updateLocationMap = {
-            ...locationMap,
-            [player.location]: updateLocation
-        }
-
-        return updateLocationMap
-    }
-    //#endregion
-
-    //#region CalculateDamage
-    function calculateDamage(baseDamage, attackStrength, critChance, enemyName, weakness, playerTurn){
-        //these wil be changed based on what attack strength the current person used
-        //////[increase dmg taken, reduce dmg given, accuracy, crit]
-        // Heavy: opponent gets 100% accuracy & 250% increased crit
-        // light: opponent takes 130% increased damage for your next hit & opponent deals 80% damage on their next hit
-
-        if(!hit(attackStrength, playerTurn, enemyName)){ return [-1, false] }
-
-        const increasedDmgBasedOnType = {
-            "heavy": 1.3,
-            "medium": 1,
-            "light": .8
-        }
-
-        //calculate multiplier for: weakness to attack type
-        //if enemy is weak to light attack and this attack is light, 1.55 dmg boost
-        let weakMult
-        const index = weakness.indexOf(attackStrength)
-        // if player is not wearing armor, weak to all attack types
-        if (!playerTurn && player.armorPiece === ""){
-            weakMult = [1.55, 1.55, 1.55]
-        }
-        else{
-            weakMult = [1.55, 1, .6]
-        }
-        const weaknessMultiplier = weakMult[index]
-
-        //add crit onto damage before returning final number
-        const [damageAfterCritCalc, isACrit] = crit(baseDamage * increasedDmgBasedOnType[attackStrength], critChance, attackStrength)
-        let finalDamage = Math.round(weaknessMultiplier * damageAfterCritCalc)
-        //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them (rat - leather armor) rat should be able to deal damage here
-        finalDamage = !playerTurn ? finalDamage - player.armor : finalDamage
-
-        return finalDamage < 0 ? [0, isACrit] : [finalDamage, isACrit]
-    }
-
-    function crit(baseDamage, critChance, attackStrength){
-        const critChanceBasedOnAttackStrength = {
-            "heavy": 1.15,
-            "medium": 1,
-            "light": .85
-        }
-
-        if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
-            //console.log('CRIT!')
-            return [baseDamage * 1.75, true]
-        }
-        return [baseDamage, false]
-    }
-
-    //calculate if hit or miss
-    // player can increase their dodge chance by increasing dex
-    //   currently at 1% dodge chance / 1 dex (maybe think about reducing this to 1% / 2 dex)
-    function hit(attackStrength, playerTurn, enemyName){
-        ////// CHANCE TO HIT MODIFIERS - based on attack strength
-        // heavy: 120%
-        // medium: 100%
-        // light: 80%
-        const hitChanceBasedOnAttackStrength = {
-            "heavy": .75,
-            "medium": 1,
-            "light": 1.25
-        }
-        
-        const genericChanceToHit = playerTurn ? player.totalChanceToHit : enemyMap[enemyName].chanceToHit * (1 - (.01*player.dex))
-        const hitChanceForCurrentAttack = genericChanceToHit * hitChanceBasedOnAttackStrength[attackStrength]
-        
-        return hitChanceForCurrentAttack > Math.random()
-    }
-    //#endregion
-
-
-
-    //#region Command Logic
     switch (action.type) {
         case 'HELP': {
             return {
@@ -263,13 +69,14 @@ export function gameReducer(state, action) {
                     //`base hp: ${player.baseHP}`,
                     //`max hp: ${player.maxHp}`
                 ]
-            };
+            }
         }
 
         case 'MOVE': {
             const exitsHere = locationMap[player.location].exits;
 
             if (exitsHere.includes(action.direction)) {
+                const prevLoc = player.location
                 const updatePlayer = {
                     ...player,
                     location: action.direction
@@ -277,6 +84,7 @@ export function gameReducer(state, action) {
                 return {
                     ...state,
                     player: updatePlayer,
+                    previousLocation: prevLoc,
                     messages: [...state.messages, `You move to ${action.direction}.`]
                 };
             } 
@@ -285,6 +93,28 @@ export function gameReducer(state, action) {
                     ...state,
                     messages: [...state.messages, "You can't go that way."]
                 };
+            }
+        }
+
+        case 'BACK': {
+            if(state.previousLocation !== '' && state.previousLocation !== player.location){
+                const currentLocation = player.location
+                const updatePlayer = {
+                    ...player,
+                    location: state.previousLocation
+                }
+                return{
+                    ...state,
+                    player: updatePlayer,
+                    previousLocation: currentLocation,
+                    messages: [...state.messages, `You move back to your previous location, ${state.previousLocation}`]
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, `You can't move backwards if you haven't moved on your own.`]
+                }
             }
         }
 
@@ -732,7 +562,7 @@ export function gameReducer(state, action) {
                         enemyName: randomMummy,
                         enemyHP: enemyMap[randomMummy].hp,
                         messages: [...state.messages, `${randomMummy} is attacking!\n` +
-                            `Choose an attack strength (light, medium, heavy)`
+                            `Choose an attack strength (light, medium, heavy) or (l, m, h)`
                         ]
                     }
                 }
@@ -783,7 +613,7 @@ export function gameReducer(state, action) {
                         enemyHP: enemyMap[action.enemy].hp,
                         enemyName: action.enemy,
                         messages: [...state.messages, `Attacking ${action.enemy}\n` +
-                            `Choose an attack strength (light, medium, heavy)`
+                            `Choose an attack strength (light, medium, heavy) or (l, m, h)`
                         ]
                     }
                 }
@@ -831,10 +661,13 @@ export function gameReducer(state, action) {
             //medium: average attack, no speed, damage, crit, or hit chance modifiers
             //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
         case 'COMBAT_ROUND': {
-            if(['light', 'medium', 'heavy'].includes(action.attackStrength)){
+            const attackStrength = action.attackStrength === 'l' ? 'light' :
+                (action.attackStrength === 'm' ? 'medium' :
+                    (action.attackStrength === 'h' ? 'heavy' : action.attackStrength))
+            if(['light', 'medium', 'heavy'].includes(attackStrength)){
                 let playerTurn = true
                 const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
-                const [damageToEnemy, playerHitIsACrit] = calculateDamage(playerBaseDamage, action.attackStrength, player.totalCrit, state.enemyName, enemyMap[state.enemyName].weakness, playerTurn)
+                const [damageToEnemy, playerHitIsACrit] = calculateDamage(player, playerBaseDamage, attackStrength, player.totalCrit, state.enemyName, enemyMap[state.enemyName].weakness, playerTurn)
                 const playerHitMessage = damageToEnemy === -1 ? 
                 `Your attack misses, dealing 0 damage.\n` :
                 (playerHitIsACrit ?
@@ -874,8 +707,8 @@ export function gameReducer(state, action) {
 
                     let addTownMessage = ''
                     if(enemyMap[state.enemyName].isBoss){
-                        [updateLocationMap, addTownMessage] = addLocationToExits(updateLocationMap, 'town')
-                        updateLocationMap = removeBoss(updateLocationMap, state.enemyName)
+                        [updateLocationMap, addTownMessage] = addLocationToExits(player, updateLocationMap, 'town')
+                        updateLocationMap = removeBoss(player, updateLocationMap, state.enemyName)
                     }
 
                     const dropsString = drops.length > 0 ? ` and${drops.map(d => ' ' + d)}\n` : ``
@@ -895,7 +728,7 @@ export function gameReducer(state, action) {
                 // ---enemy turn----
                 playerTurn = false
                 const enemyAttackStrength = pickRandomItemWithWeights(enemyMap[state.enemyName].damageType, [.7, .1, .1])
-                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(enemyMap[state.enemyName].damage, enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
+                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(player, enemyMap[state.enemyName].damage, enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
                 const enemyHitMessage = damageToPlayer === -1 ? 
                 `The ${state.enemyName} misses you, dealing 0 damage.\n` :
                 (enemyHitIsACrit ? 
@@ -907,7 +740,7 @@ export function gameReducer(state, action) {
                     return{
                         player: state.initialPlayer,
                         locationMap: state.initialLocationMap,
-                        messages: [enemyHitMessage + `You have died. :(\nType 'help' for a list of commands`],
+                        messages: [enemyHitMessage + `You have died. :(\nType 'help' or 'h' for a list of commands`],
                         awaitingBuyInput: false,
                         awaitingSellInput: false,
                         inCombat: false,
@@ -934,7 +767,7 @@ export function gameReducer(state, action) {
                 return{
                     ...state,
                     inCombat: true,
-                    messages: [...state.messages, `${action.attackStrength} is not an attack strength.`]
+                    messages: [...state.messages, `${attackStrength} is not an attack strength.`]
                 }
             }
         }
@@ -949,5 +782,4 @@ export function gameReducer(state, action) {
         default:
             return state;
     }
-    //#endregion
 }
