@@ -2,14 +2,16 @@ import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locat
 
 export const initialState = {
     player, //new Character(15, 7/10, 7, 10, 5, 10, "town", ["apple", "sword", "apple", "dex-pot", "brass-dome", "str-pot", "hp-pot", "armor-pot", "leather-armor"]),
+    initialPlayer: player,
     locationMap,
+    initialLocationMap: locationMap,
     messages: ["Type 'help' for a list of commands"],
     awaitingBuyInput: false,
     awaitingSellInput: false,
     inCombat: false,
     enemyName: '',
     enemyHP: 0,
-    playerDead: false
+    brownKeyDropped: false
 };
 
 export function gameReducer(state, action) {
@@ -97,37 +99,33 @@ export function gameReducer(state, action) {
         if (player.weapon !== ""){
             return{
                 ...player,
-                totalCrit: Math.round(((player.baseCrit * ((player.strength/player.initialStrength)/player.strengthToCritScaling)) * weaponMap[player.weapon].critChance) * 100) / 100
+                totalCrit: Math.round((player.baseCrit * weaponMap[player.weapon].critChance) * 100) / 100
             }
         }
         else{
             return{
                 ...player,
-                totalCrit: Math.round(player.baseCrit * ((player.strength/player.initialStrength)/player.strengthToCritScaling) * 100) / 100
+                totalCrit: Math.round(player.baseCrit * 100) / 100
             }
         }
     }
     //#endregion
 
     //#region Update State Functions
-    function addTownToExits(){
+    function addLocationToExits(locationMap, location){
         const updateLocation = {
             ...locationMap[player.location],
-            exits: locationMap[player.location].exits.concat('town')
+            exits: locationMap[player.location].exits.concat(location)
         }
         const updateLocationMap = {
             ...locationMap,
             [player.location]: updateLocation
         }
 
-        return{
-            ...state,
-            locationMap: updateLocationMap,
-            messages: [...state.messages, `You can now travel to town from this location.`]
-        }
+        return [updateLocationMap, `You can now travel to ${location} from this location.`]
     }
 
-    function removeBoss(enemyName){
+    function removeBoss(locationMap, enemyName){
         const updateLocation = {
             ...locationMap[player.location],
             enemies: removeFirstFoundItem(locationMap[player.location].enemies, enemyName)
@@ -137,10 +135,7 @@ export function gameReducer(state, action) {
             [player.location]: updateLocation
         }
 
-        return{
-            ...state,
-            locationMap: updateLocationMap
-        }
+        return updateLocationMap
     }
     //#endregion
 
@@ -151,11 +146,7 @@ export function gameReducer(state, action) {
         // Heavy: opponent gets 100% accuracy & 250% increased crit
         // light: opponent takes 130% increased damage for your next hit & opponent deals 80% damage on their next hit
 
-        if(!hit(attackStrength, playerTurn, enemyName)){
-            console.log(`player turn: ${playerTurn}`)
-            console.log('MISSssss')
-            return 0
-        }
+        if(!hit(attackStrength, playerTurn, enemyName)){ return [-1, false] }
 
         const increasedDmgBasedOnType = {
             "heavy": 1.3,
@@ -177,10 +168,12 @@ export function gameReducer(state, action) {
         const weaknessMultiplier = weakMult[index]
 
         //add crit onto damage before returning final number
-        let finalDamage = Math.round(weaknessMultiplier * crit(baseDamage * increasedDmgBasedOnType[attackStrength], critChance, attackStrength))
+        const [damageAfterCritCalc, isACrit] = crit(baseDamage * increasedDmgBasedOnType[attackStrength], critChance, attackStrength)
+        let finalDamage = Math.round(weaknessMultiplier * damageAfterCritCalc)
+        //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them (rat - leather armor) rat should be able to deal damage here
         finalDamage = !playerTurn ? finalDamage - player.armor : finalDamage
 
-        return finalDamage < 0 ? 0 : finalDamage
+        return finalDamage < 0 ? [0, isACrit] : [finalDamage, isACrit]
     }
 
     function crit(baseDamage, critChance, attackStrength){
@@ -192,9 +185,9 @@ export function gameReducer(state, action) {
 
         if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
             //console.log('CRIT!')
-            return baseDamage * 1.75
+            return [baseDamage * 1.75, true]
         }
-        return baseDamage
+        return [baseDamage, false]
     }
 
     //calculate if hit or miss
@@ -363,7 +356,6 @@ export function gameReducer(state, action) {
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateHP(updatePlayer)
-                    updatePlayer = updateCritChance(updatePlayer)
 
                     return{
                         ...state,
@@ -732,12 +724,15 @@ export function gameReducer(state, action) {
                         [player.location]: updateLocation
                     }
 
-                    //TODO: force an attack here with the randomMummy. probably change the inCombat flag to true, and provide the mummy name
-                    //TODO: the attack function also has to handle removing the mummy after its been defeated. and adding the key to player.inv based on random number
                     return{
                         ...state,
                         locationMap: updateLocationMap,
-                        messages: [...state.messages, `${randomMummy} is attacking!`]
+                        inCombat: true,
+                        enemyName: randomMummy,
+                        enemyHP: enemyMap[randomMummy].hp,
+                        messages: [...state.messages, `${randomMummy} is attacking!\n` +
+                            `Choose an attack strength (light, medium, heavy)`
+                        ]
                     }
                 }
                 else{
@@ -840,12 +835,40 @@ export function gameReducer(state, action) {
                 //TODO: get rid of the need for a shuffle here.
                 //it would be more fun for the player if the enemies had a set weakness, so they can learn how to fight more efficently
                 shuffle(enemyWeakness)
+
                 let playerTurn = true
-                const damageToEnemy = calculateDamage(weaponMap[player.weapon].damage, action.attackStrength, player.totalCrit, state.enemyName, enemyWeakness, playerTurn)
+                const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
+                const [damageToEnemy, playerHitIsACrit] = calculateDamage(playerBaseDamage, action.attackStrength, player.totalCrit, state.enemyName, enemyWeakness, playerTurn)
+                const playerHitMessage = damageToEnemy === -1 ? 
+                `Your attack misses, dealing 0 damage.\n` :
+                (playerHitIsACrit ?
+                    `You CRIT the ${state.enemyName}, dealing ${damageToEnemy} damage.\n` :
+                    `You deal ${damageToEnemy} damage to the ${state.enemyName}.\n`)
 
                 if(state.enemyHP - damageToEnemy <= 0){
                     const gold = enemyMap[state.enemyName].gold
-                    const drops = enemyMap[state.enemyName].itemDrops
+                    var drops = enemyMap[state.enemyName].itemDrops
+                    const keyDropChance = .3
+                    const mummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
+                    var updateLocationMap = {
+                        ...locationMap
+                    }
+
+                    if(mummies.includes(state.enemyName)){
+                        if(keyDropChance > Math.random() && !state.brownKeyDropped){
+                            drops = drops.concat('brown-key')
+                            state.brownKeyDropped = true
+                        }
+                        //remove mummy
+                        const updateLocation = {
+                            ...locationMap[player.location],
+                            enemies: removeFirstFoundItem(locationMap[player.location].enemies, state.enemyName)
+                        }
+                        updateLocationMap = {
+                            ...locationMap,
+                            [player.location]: updateLocation
+                        }
+                    }
 
                     const updatePlayer = {
                         ...player,
@@ -853,18 +876,22 @@ export function gameReducer(state, action) {
                         inv: player.inv.concat(drops)
                     }
 
+                    let addTownMessage = ''
                     if(enemyMap[state.enemyName].isBoss){
-                        addTownToExits()
-                        removeBoss(state.enemyName)
+                        [updateLocationMap, addTownMessage] = addLocationToExits(updateLocationMap, 'town')
+                        updateLocationMap = removeBoss(updateLocationMap, state.enemyName)
                     }
+
+                    const dropsString = drops.length > 0 ? ` and${drops.map(d => ' ' + d)}\n` : ``
 
                     return{
                         ...state,
                         inCombat: false,
                         player: updatePlayer,
-                        messages: [...state.messages, `You deal ${damageToEnemy} damage to the ${state.enemyName}\n` +
+                        locationMap: updateLocationMap,
+                        messages: [...state.messages, playerHitMessage +
                             `You have killed the ${state.enemyName}.\n` +
-                            `You gain ${gold} gold and ${drops}`
+                            `You gain ${gold} gold` + dropsString + addTownMessage
                         ]
                     }
                 }
@@ -872,22 +899,31 @@ export function gameReducer(state, action) {
                 // ---enemy turn----
                 playerTurn = false
                 const enemyAttackStrength = pickRandomItemWithWeights(enemyMap[state.enemyName].damageType, [.7, .1, .1])
-                const enemyDamage = calculateDamage(enemyMap[state.enemyName].damage, enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
+                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(enemyMap[state.enemyName].damage, enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
+                const enemyHitMessage = damageToPlayer === -1 ? 
+                `The ${state.enemyName} misses you, dealing 0 damage.\n` :
+                (enemyHitIsACrit ? 
+                    `The ${state.enemyName} CRITS you with a ${enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`:
+                    `The ${state.enemyName} hits you with a ${enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`)
                 
-                if(player.currentHP - enemyDamage <= 0){
+
+                if(player.currentHP - damageToPlayer <= 0){
                     return{
-                        //TODO: reset the game to the initial state
-                        ...state,
+                        player: state.initialPlayer,
+                        locationMap: state.initialLocationMap,
+                        messages: [enemyHitMessage + `You have died. :(\nType 'help' for a list of commands`],
+                        awaitingBuyInput: false,
+                        awaitingSellInput: false,
                         inCombat: false,
-                        playerDead: true,
-                        messages: [...state.messages, `The ${state.enemyName} hits you with a ${enemyAttackStrength} attack, dealing ${enemyDamage} damage to you\n` +
-                            `You have died. :(`]
+                        enemyName: '',
+                        enemyHP: 0,
+                        brownKeyDropped: false
                     }
                 }
 
                 const updatePlayer = {
                     ...player,
-                    currentHP: player.currentHP - enemyDamage
+                    currentHP: damageToPlayer > 0 ? player.currentHP - damageToPlayer : player.currentHP
                 }
 
                 return{
@@ -895,9 +931,7 @@ export function gameReducer(state, action) {
                     player: updatePlayer,
                     inCombat: true,
                     enemyHP: state.enemyHP - damageToEnemy,
-                    messages: [...state.messages, `You deal ${damageToEnemy} damage to the ${state.enemyName}\n` +
-                        `The ${state.enemyName} hits you with a ${enemyAttackStrength} attack, dealing ${enemyDamage} damage to you`
-                    ]
+                    messages: [...state.messages, playerHitMessage + enemyHitMessage]
                 }
             }
             else{
