@@ -28,7 +28,7 @@
     { "name": "heavy-chainmail", "sellValue": 6, "weakness": ["light", "heavy", "medium"], "armorValue": 11 },
     { "name": "golden-chainmail", "sellValue": 16, "weakness": ["light", "heavy", "medium"], "armorValue": 17 },
     { "name": "steel-platemail", "sellValue": 4, "weakness": ["medium", "light", "heavy"], "armorValue": 10 },
-    { "name": "rune-platemail", "sellValue": 8, "weakness": ["medium", "light", "heavy"], "armorValue": 17 },
+    { "name": "rune-platemail", "sellValue": 8, "weakness": ["medium", "light", "heavy"], "armorValue": 21 },
     { "name": "brass-dome", "sellValue": 17, "weakness": ["medium", "light", "heavy"], "armorValue": 25 }
   ],
   "food": [
@@ -42,10 +42,10 @@
     { "name": "apple", "sellValue": 4, "healAmount": 8, "increaseStat": "hp", "increaseStatAmount": 5 }
   ],
   "potions": [
-    { "name": "dex-pot", "sellValue": 9, "potionType": "dex", "potionValue": 5 },
+    { "name": "dex-pot", "sellValue": 10, "potionType": "dex", "potionValue": 5 },
     { "name": "str-pot", "sellValue": 9, "potionType": "strength", "potionValue": 2 },
-    { "name": "hp-pot", "sellValue": 12, "potionType": "hp", "potionValue": 4 },
-    { "name": "armor-pot", "sellValue": 8, "potionType": "armor", "potionValue": 2 }
+    { "name": "hp-pot", "sellValue": 7, "potionType": "hp", "potionValue": 4 },
+    { "name": "armor-pot", "sellValue": 12, "potionType": "armor", "potionValue": 2 }
   ],
   "keys": [
     { "name": "brown-key", "sellValue": 7 },
@@ -53,40 +53,18 @@
   ],
   "locations": [
     {
-        "name": "town",
-        "exits": ["ryan-store", "house", "desert", "woods", "lake", "church"],
-        "floorItems": [],
-        "enemies": ["rat"],
-        "lockedRooms": []
-    },
-    {
-        "name": "house",
-        "exits": ["town"],
-        "floorItems": ["pizza", "knife", "cake", "dex-pot", "clothes", "str-pot", "hp-pot"],
-        "enemies": ["bird"],
-        "lockedRooms": []
-    },
-    {
         "name": "ryan-store",
         "exits": ["town"],
-        "floorItems": ["sword"],
+        "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
         "itemsForSale": [
-            "sword 3",
-            "taco 4",
-            "apple 5",
-            "steel-platemail 6",
-            "light-chainmail 4",
-            "hp-pot 15"
+            "sword 5",
+            "taco 6",
+            "apple 7",
+            "steel-platemail 14",
+            "light-chainmail 8"
         ]
-    },
-    {
-        "name": "desert",
-        "exits": ["town", "pyramid", "sandstorm"],
-        "floorItems": ["taco"],
-        "enemies": ["zombie"],
-        "lockedRooms": []
     },
     {
         "name": "abdi-store",
@@ -95,15 +73,67 @@
         "enemies": [],
         "lockedRooms": [],
         "itemsForSale": [
-            "cake 4",
-            "taco 3",
-            "hand-axe 5",
-            "pizza 4",
-            "nice-sword 5",
-            "leather-armor 7",
-            "dex-pot 10",
-            "str-pot 10"
+            "cake 7",
+            "taco 5",
+            "hand-axe 8",
+            "pizza 6",
+            "nice-sword 10",
+            "leather-armor 10",
+            "hp-pot 30"
         ]
+    },
+    {
+        "name": "tony-store",
+        "exits": ["tree-house"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": [],
+        "itemsForSale": [
+            "golden-chainmail 14",
+            "str-pot 30"
+        ]
+    },
+    {
+        "name": "joe-store",
+        "exits": ["atlantis"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": [],
+        "itemsForSale": [
+            "skooma 8",
+            "dex-pot 30"
+        ]
+    },
+    {
+        "name": "danou-store",
+        "exits": [],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": [],
+        "itemsForSale": [
+            "armor-pot 30"
+        ]
+    },
+    {
+        "name": "town",
+        "exits": ["house", "desert", "woods", "lake", "church"],
+        "floorItems": [],
+        "enemies": ["rat"],
+        "lockedRooms": []
+    },
+    {
+        "name": "house",
+        "exits": ["ryan-store", "town"],
+        "floorItems": ["pizza", "knife", "cake", "clothes"],
+        "enemies": ["bird"],
+        "lockedRooms": []
+    },
+    {
+        "name": "desert",
+        "exits": ["town", "pyramid", "sandstorm"],
+        "floorItems": ["taco"],
+        "enemies": ["zombie"],
+        "lockedRooms": []
     },
     {
         "name": "room-room",
@@ -212,37 +242,17 @@
     },
     {
         "name": "lake",
-        "exits": ["town"],
+        "exits": ["town", "rip-current", "shoreline", "dry-riverbed"],
         "floorItems": [],
         "enemies": [],
         "lockedRooms": []
-    },
-    {
-        "name": "danou-store",
-        "exits": [],
-        "floorItems": [],
-        "enemies": [],
-        "lockedRooms": [],
-        "itemsForSale": [
-            "armor-pot 10"
-        ]
     },
     {
         "name": "woods",
         "exits": ["town", "path", "beaten-path"],
         "floorItems": [],
-        "enemies": ["snake"],
+        "enemies": ["snake", "tiger"],
         "lockedRooms": []
-    },
-    {
-        "name": "tony-store",
-        "exits": ["tree-house"],
-        "floorItems": [],
-        "enemies": [],
-        "lockedRooms": [],
-        "itemsForSale": [
-            "golden-chainmail 14"
-        ]
     },
     {
         "name": "path",
@@ -262,14 +272,14 @@
         "name": "cave",
         "exits": ["path", "underground-lake", "lit-hall"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["slime"],
         "lockedRooms": []
     },
     {
         "name": "underground-lake",
         "exits": ["cave"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["gold-ninja", "rhoa"],
         "lockedRooms": []
     },
     {
@@ -289,7 +299,7 @@
     {
         "name": "green-room",
         "exits": ["???room"],
-        "floorItems": [],
+        "floorItems": ["armor-pot"],
         "enemies": [],
         "lockedRooms": []
     },
@@ -297,7 +307,7 @@
         "name": "beaten-path",
         "exits": ["woods", "swamp", "mud-pit"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["slime"],
         "lockedRooms": []
     },
     {
@@ -311,28 +321,28 @@
         "name": "darker-swamp",
         "exits": ["swamp", "shreks-place"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": [""],
         "lockedRooms": []
     },
     {
         "name": "shreks-place",
         "exits": ["darker-swamp"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["shrek"],
         "lockedRooms": []
     },
     {
         "name": "mud-pit",
         "exits": ["beaten-path", "jungle"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["snake"],
         "lockedRooms": []
     },
     {
         "name": "jungle",
         "exits": ["mud-pit", "green-path", "cliff"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["tiger", "monkey"],
         "lockedRooms": []
     },
     {
@@ -345,33 +355,121 @@
     {
         "name": "cliff",
         "exits": ["jungle"],
-        "floorItems": [],
-        "enemies": [],
+        "floorItems": ["armor-pot"],
+        "enemies": ["boar"],
         "lockedRooms": []
     },
     {
         "name": "clearing",
         "exits": ["green-path"],
-        "floorItems": [],
-        "enemies": [],
+        "floorItems": ["armor-pot"],
+        "enemies": ["deer-god"],
         "lockedRooms": []
     },
     {
         "name": "church",
         "exits": ["town"],
         "floorItems": [],
+        "enemies": ["slime"],
+        "lockedRooms": []
+    },
+    {
+        "name": "rip-current",
+        "exits": [],
+        "floorItems": [],
         "enemies": [],
         "lockedRooms": []
     },
     {
-        "name": "joe-store",
-        "exits": [],
+        "name": "underwater-cavern",
+        "exits": ["rip-current", "underwater-highway"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": [],
-        "itemsForSale": [
-            "skooma 8"
-        ]
+        "lockedRooms": []
+    },
+    {
+        "name": "underwater-highway",
+        "exits": ["underwater-cavern", "bandit-merman-lair"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "bandit-merman-lair",
+        "exits": ["underwater-highway"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "atlantis",
+        "exits": ["underwater-highway", "mermaid-house", "joe-store"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": ["throne-room"]
+    },
+    {
+        "name": "mermaid-house",
+        "exits": ["atlantis"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "throne-room",
+        "exits": ["atlantis"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "dry-riverbed",
+        "exits": ["lake", "old-beaver-dam"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "old-beaver-dam",
+        "exits": ["dry-riverbed"],
+        "floorItems": [],
+        "enemies": ["wise-bear"],
+        "lockedRooms": []
+    },
+    {
+        "name": "shoreline",
+        "exits": ["lake", "cove", "river"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "river",
+        "exits": ["shoreline", "waterfall"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "waterfall",
+        "exits": ["river"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "hidden-cave",
+        "exits": ["waterfall"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
+    },
+    {
+        "name": "cove",
+        "exits": ["shoreline"],
+        "floorItems": [],
+        "enemies": [],
+        "lockedRooms": []
     }
   ],
   "enemies": [
@@ -401,12 +499,12 @@
     },
     {
         "name": "slime",
-        "damage": 0,
-        "critChance": 0,
-        "chanceToHit": 0,
-        "hp": 0,
-        "gold": 0,
-        "itemDrops": [],
+        "damage": 6,
+        "critChance": 0.2,
+        "chanceToHit": 0.6,
+        "hp": 25,
+        "gold": 3,
+        "itemDrops": ["hammer"],
         "damageType": ["light", "medium", "heavy"],
         "weakness": ["light", "heavy", "medium"],
         "isBoss": false
@@ -415,9 +513,9 @@
         "name": "ninja",
         "damage": 10,
         "critChance": 0.4,
-        "chanceToHit": 0.95,
+        "chanceToHit": 0.7,
         "hp": 20,
-        "gold": 11,
+        "gold": 6,
         "itemDrops": ["leather-armor"],
         "damageType": ["medium", "heavy", "light"],
         "weakness": ["medium", "light", "heavy"],
@@ -425,37 +523,37 @@
     },
     {
         "name": "gold-ninja",
-        "damage": 0,
-        "critChance": 0,
-        "chanceToHit": 0,
-        "hp": 0,
-        "gold": 0,
-        "itemDrops": [],
-        "damageType": [],
+        "damage": 12,
+        "critChance": 0.45,
+        "chanceToHit": 0.8,
+        "hp": 24,
+        "gold": 10,
+        "itemDrops": ["dagger", "knife", "taco"],
+        "damageType": ["light", "heavy", "medium"],
         "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
     {
         "name": "challenger-ninja",
-        "damage": 0,
-        "critChance": 0,
-        "chanceToHit": 0,
-        "hp": 0,
-        "gold": 0,
-        "itemDrops": [],
-        "damageType": [],
+        "damage": 13,
+        "critChance": 0.5,
+        "chanceToHit": 0.9,
+        "hp": 29,
+        "gold": 15,
+        "itemDrops": ["pizza", "apple", "rapier"],
+        "damageType": ["heavy", "light", "medium"],
         "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
     {
         "name": "zed",
-        "damage": 0,
-        "critChance": 0,
-        "chanceToHit": 0,
-        "hp": 0,
-        "gold": 0,
-        "itemDrops": [],
-        "damageType": [],
+        "damage": 15,
+        "critChance": 0.6,
+        "chanceToHit": 0.95,
+        "hp": 36,
+        "gold": 25,
+        "itemDrops": ["str-pot", "dex-pot", "skooma"],
+        "damageType": ["medium", "light", "heavy"],
         "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
@@ -502,7 +600,7 @@
         "chanceToHit": 0.8,
         "hp": 23,
         "gold": 11,
-        "itemDrops": ["bayonet"],
+        "itemDrops": ["bayonet", "dex-pot"],
         "damageType": ["heavy", "medium", "light"],
         "weakness": ["medium", "light", "heavy"],
         "isBoss": false
@@ -514,7 +612,7 @@
         "chanceToHit": 0.9,
         "hp": 29,
         "gold": 13,
-        "itemDrops": ["cake", "longsword"],
+        "itemDrops": ["cake", "longsword", "hp-pot"],
         "damageType": ["medium", "heavy", "light"],
         "weakness": ["heavy", "light", "medium"],
         "isBoss": false
@@ -574,7 +672,7 @@
         "chanceToHit": 0.8,
         "hp": 35,
         "gold": 15,
-        "itemDrops": ["heavy-chainmail"],
+        "itemDrops": ["heavy-chainmail", "dex-pot"],
         "damageType": ["heavy", "medium", "light"],
         "weakness": ["heavy", "light", "medium"],
         "isBoss": true
@@ -586,7 +684,7 @@
         "chanceToHit": 0.7,
         "hp": 50,
         "gold": 25,
-        "itemDrops": ["skooma"],
+        "itemDrops": ["skooma", "str-pot"],
         "damageType": ["medium", "heavy", "light"],
         "weakness": ["medium", "heavy", "light"],
         "isBoss": true
@@ -599,7 +697,7 @@
         "hp": 20,
         "gold": 4,
         "itemDrops": [],
-        "damageType": [],
+        "damageType": ["light", "medium", "heavy"],
         "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
@@ -611,7 +709,7 @@
         "hp": 13,
         "gold": 5,
         "itemDrops": [],
-        "damageType": [],
+        "damageType": ["light", "medium", "heavy"],
         "weakness": ["light", "heavy", "medium"],
         "isBoss": false
     },
@@ -623,7 +721,7 @@
         "hp": 25,
         "gold": 6,
         "itemDrops": [],
-        "damageType": [],
+        "damageType": ["light", "heavy", "medium"],
         "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
@@ -635,7 +733,7 @@
         "hp": 30,
         "gold": 8,
         "itemDrops": [],
-        "damageType": [],
+        "damageType": ["medium", "heavy", "light"],
         "weakness": ["heavy", "light", "medium"],
         "isBoss": false
     },
@@ -647,7 +745,7 @@
         "hp": 40,
         "gold": 13,
         "itemDrops": [],
-        "damageType": [],
+        "damageType": ["heavy", "medium", "light"],
         "weakness": ["medium", "heavy", "light"],
         "isBoss": false
     },
@@ -658,10 +756,10 @@
         "chanceToHit": 0.85,
         "hp": 50,
         "gold": 30,
-        "itemDrops": [],
-        "damageType": [],
+        "itemDrops": ["str-pot", "scimitar"],
+        "damageType": ["medium", "heavy", "light"],
         "weakness": ["heavy", "medium", "light"],
-        "isBoss": false
+        "isBoss": true
     },
     {
         "name": "deer-god",
@@ -670,8 +768,8 @@
         "chanceToHit": 0.8,
         "hp": 100,
         "gold": 40,
-        "itemDrops": [],
-        "damageType": [],
+        "itemDrops": ["hp-pot", "armor-pot", "rune-platemail"],
+        "damageType": ["heavy", "medium", "light"],
         "weakness": ["light", "heavy", "medium"],
         "isBoss": true
     }

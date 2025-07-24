@@ -1,4 +1,4 @@
-import { weaponMap, armorMap, enemyMap } from './textGame2019_objectCreation.ts';
+import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts';
 
 
     //#region Helper Functions
@@ -45,6 +45,10 @@ import { weaponMap, armorMap, enemyMap } from './textGame2019_objectCreation.ts'
         
         return items[i];
     }
+
+    export function pickRandom(list){
+        return list[Math.floor(Math.random() * list.length)]
+    }
     //#endregion
 
     //#region Update Player Stats
@@ -61,7 +65,7 @@ import { weaponMap, armorMap, enemyMap } from './textGame2019_objectCreation.ts'
     export function updateHP(player){
         return {
             ...player,
-            maxHp: player.baseHP + Math.round(player.strength * (player.baseHP / (player.initialBaseHP * player.healthScaling)))
+            maxHp: player.baseHP + Math.round(player.strength * (player.baseHP / player.initialBaseHP))
         }
     }
 
@@ -110,7 +114,7 @@ import { weaponMap, armorMap, enemyMap } from './textGame2019_objectCreation.ts'
         return [updateLocationMap, `You can now travel to ${location} from this location.`]
     }
 
-    export function removeBoss(player, locationMap, enemyName){
+    export function removeEnemy(player, locationMap, enemyName){
         const updateLocation = {
             ...locationMap[player.location],
             enemies: removeFirstFoundItem(locationMap[player.location].enemies, enemyName)

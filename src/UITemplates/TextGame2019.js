@@ -1,5 +1,5 @@
 import NavBar from './NavBar.js';
-import { useGameLogic } from '../TextGames/textGame2019.js';
+import { useGameLogic } from '../TextGames/textGame2019_driver.js';
 import { useRef, useEffect } from 'react';
 
 export function TextGame2019() {
