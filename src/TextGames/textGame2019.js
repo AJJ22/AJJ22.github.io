@@ -1,6 +1,5 @@
 import { useReducer, useState } from 'react';
-import { gameReducer, initialState } from './textGame2019_characterHandler.ts';
-//import { locationMap } from './textGame2019_objectCreation.ts';
+import { gameReducer, initialState } from './redux/textGame2019_characterHandler.ts';
 
 export function useGameLogic() {
     const [inputValue, setInputValue] = useState('');
