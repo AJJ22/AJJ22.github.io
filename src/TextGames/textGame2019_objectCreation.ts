@@ -1,4 +1,4 @@
-import data from './data/textGame2019_Data.json';
+import data from './data/textGame2019_Data.json'
 ////TODO: BUFF flat enemy dmg, nerf range of chance-based damage. like extra crit dmg, dmgBasedOnType, & weakness dmg
 ////      The enemies should have a smaller range of damage, 
 //             EX: right now a rat can do 0 dmg or 20 dmg. the rat should do 7-10 dmg every hit
@@ -24,33 +24,33 @@ import data from './data/textGame2019_Data.json';
 // modified by armorPiece and pots
 
 interface Character{
-    initialBaseHP: number; //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
-    baseHP: number; //need this so i don't stack strength bonuses on top of eachother
+    initialBaseHP: number //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
+    baseHP: number //need this so i don't stack strength bonuses on top of eachother
     //i want the baseHP to affect the strength bonus health. (the more baseHP you have, the more benefit you get from strength) 
-    maxHp: number;  //this.baseHP + Math.round(strength * (this.baseHP / this.initialBaseHP))
-    currentHP: number; //this will be how i track hp in battles, if you take damage, remove from here
+    maxHp: number  //this.baseHP + Math.round(strength * (this.baseHP / this.initialBaseHP))
+    currentHP: number //this will be how i track hp in battles, if you take damage, remove from here
 
-    strength: number; //used for damage modifier and health
-    strengthToBaseDamageScaling: number;
+    strength: number //used for damage modifier and health
+    strengthToBaseDamageScaling: number
 
-    totalCrit: number; //chance to critically strike after everything has been factored in
-    baseCrit: number; //only modified by stat pots and temporary bosts
+    totalCrit: number //chance to critically strike after everything has been factored in
+    baseCrit: number //only modified by stat pots and temporary bosts
 
-    dex: number; //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
+    dex: number //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
                     //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
 
-    baseChanceToHit: number; //Math.round((.7 + this.dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
-    totalChanceToHit: number; //chanceToHit after all modifiers
+    baseChanceToHit: number //Math.round((.7 + this.dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
+    totalChanceToHit: number //chanceToHit after all modifiers
 
-    armorStat: number; //damage reduction stat can be increased with potions
-    armorPiece: string; //what armor piece you are currently wearing
-    armor: number; //this.armorStat + armorMap[this.armorPiece] //total damage reduction for calculating hits
+    armorStat: number //damage reduction stat can be increased with potions
+    armorPiece: string //what armor piece you are currently wearing
+    armor: number //this.armorStat + armorMap[this.armorPiece] //total damage reduction for calculating hits
 
-    weapon: string;
+    weapon: string
     
-    location: string;
-    inv: string[];
-    gold: number;
+    location: string
+    inv: string[]
+    gold: number
 }
 
 //#region Item Classes
@@ -99,7 +99,7 @@ interface Location{
 }
 /*
 export interface Store extends Location{
-    itemsForSale: Record<string, number>;
+    itemsForSale: Record<string, number>
 }*/
 //#endregion
 
@@ -120,26 +120,26 @@ interface Enemy{
 
 
 //#region Map JSON data to arrays of interfaceName[]
-const weapons: Weapon[] = data.weapons;
+const weapons: Weapon[] = data.weapons
 export const weaponMap: Record<string, Weapon> = Object.fromEntries(weapons.map(w => [w.name, w]))
 
-const armorList: Armor[] = data.armor;
+const armorList: Armor[] = data.armor
 export const armorMap: Record<string, Armor> = Object.fromEntries(armorList.map(a => [a.name, a]))
 
-const food: Food[] = data.food;
+const food: Food[] = data.food
 export const foodMap: Record<string, Food> = Object.fromEntries(food.map(f => [f.name, f]))
 
-const potions: Potion[] = data.potions;
+const potions: Potion[] = data.potions
 export const potionMap: Record<string, Potion> = Object.fromEntries(potions.map(p => [p.name, p]))
 
-const keys: Key[] = data.keys;
+const keys: Key[] = data.keys
 export const keyMap: Record<string, Key> = Object.fromEntries(keys.map(k => [k.name, k]))
 
-const locations: Location[] = data.locations;
-export const locationMap: Record<string, Location> = Object.fromEntries(locations.map(l => [l.name, l]));
+const locations: Location[] = data.locations
+export const locationMap: Record<string, Location> = Object.fromEntries(locations.map(l => [l.name, l]))
 
-const enemies: Enemy[] = data.enemies;
-export const enemyMap: Record<string, Enemy> = Object.fromEntries(enemies.map(e => [e.name, e]));
+const enemies: Enemy[] = data.enemies
+export const enemyMap: Record<string, Enemy> = Object.fromEntries(enemies.map(e => [e.name, e]))
 
 
 
@@ -166,7 +166,7 @@ const armor = armorStat + armorMap[armorPiece].armorValue //total damage reducti
 
 const weapon = "knife"
 
-const location = "town"
+const location = "burial-chamber"
 const inv = []
 const gold = 10
 

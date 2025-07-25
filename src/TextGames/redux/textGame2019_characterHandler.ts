@@ -1,12 +1,11 @@
-import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../textGame2019_objectCreation.ts';
+import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../textGame2019_objectCreation.ts'
 import { removeFirstFoundItem, isAPotion, updateChanceToHit, updateHP, updateArmor, updateCritChance, calculateDamage, addLocationToExits, 
-    removeEnemy, pickRandomItemWithWeights, pickRandom } from './textGame2019_helperFunctions.ts';
+    removeEnemy } from './textGame2019_helperFunctions.ts'
+import cloneDeep from 'lodash/cloneDeep'
 
 export const initialState = {
     player,
-    initialPlayer: player,
     locationMap,
-    initialLocationMap: locationMap,
     previousLocation: '',
     messages: ["Type 'help' or 'h' for a list of commands"],
     awaitingBuyInput: false,
@@ -31,7 +30,7 @@ export function gameReducer(state, action) {
         }
 
         case 'LOOK': {
-            const enemiesHere = locationMap[player.location].enemies;
+            const enemiesHere = locationMap[player.location].enemies
             return {
                 ...state,
                 messages: [...state.messages,
@@ -260,7 +259,7 @@ export function gameReducer(state, action) {
         }
 
         case 'TAKE': {
-            const itemsHere = locationMap[player.location].floorItems;
+            const itemsHere = locationMap[player.location].floorItems
             if (itemsHere.includes(action.item)){
                 const updatePlayer = {
                     ...player,
@@ -289,7 +288,7 @@ export function gameReducer(state, action) {
         }
 
         case 'DROP': {
-            const itemsHere = locationMap[player.location].floorItems;
+            const itemsHere = locationMap[player.location].floorItems
             if(player.inv.includes(action.item)){
                 const updatePlayer = {
                     ...player,
@@ -328,14 +327,14 @@ export function gameReducer(state, action) {
                 }
             }
 
-            let newInv = player.inv.filter(i => i !== action.item);
+            let newInv = player.inv.filter(i => i !== action.item)
 
             // If swapping, add the old item back to inventory
             if (itemIsWeapon && player.weapon !== '') {
-                newInv = newInv.concat(player.weapon);
+                newInv = newInv.concat(player.weapon)
             }
             if (itemIsArmor && player.armorPiece !== '') {
-                newInv = newInv.concat(player.armorPiece);
+                newInv = newInv.concat(player.armorPiece)
             }
 
             let updatePlayer = {
@@ -343,15 +342,15 @@ export function gameReducer(state, action) {
                 inv: newInv,
                 weapon: itemIsWeapon ? action.item : player.weapon,
                 armorPiece: itemIsArmor ? action.item : player.armorPiece
-            };
+            }
 
             // Update stats
             if (itemIsWeapon) {
-                updatePlayer = updateCritChance(updatePlayer);
-                updatePlayer = updateChanceToHit(updatePlayer);
+                updatePlayer = updateCritChance(updatePlayer)
+                updatePlayer = updateChanceToHit(updatePlayer)
             }
             if (itemIsArmor) {
-                updatePlayer = updateArmor(updatePlayer);
+                updatePlayer = updateArmor(updatePlayer)
             }
 
             return {
@@ -390,11 +389,11 @@ export function gameReducer(state, action) {
                 }
             }
 
-            //TODO: learn what reduce does, what is acc, what is the {}); at the bottom??
+            //TODO: learn what reduce does, what is acc, what is the {}) at the bottom??
             const saleItems = locationMap[player.location].itemsForSale.reduce((acc, itemStr) => {
-                const [name, price] = itemStr.split(' ');
-                acc[name] = Number(price);
-                return acc;
+                const [name, price] = itemStr.split(' ')
+                acc[name] = Number(price)
+                return acc
             }, {})
 
             if(action.item in saleItems){
@@ -436,7 +435,7 @@ export function gameReducer(state, action) {
                 }
 
                 //better way of doing the same thing. lambda functions are much more elegant
-                //const sellItems = player.inv.map(item => `${item}: ${itemMap[item]?.sellValue ?? 'Unknown'}`).join('\n');
+                //const sellItems = player.inv.map(item => `${item}: ${itemMap[item]?.sellValue ?? 'Unknown'}`).join('\n')
                 
                 return{
                     ...state,
@@ -564,12 +563,9 @@ export function gameReducer(state, action) {
         case 'OPEN_COFFIN': {
             if(player.location === 'burial-chamber'){
                 if(player.weapon !== ''){
-                    const coffinMummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
-                    const randomMummy = coffinMummies[Math.floor(Math.random() * coffinMummies.length)]
-
                     const updateLocation = {
                         ...locationMap[player.location],
-                        enemies: locationMap[player.location].enemies.concat(randomMummy)
+                        enemies: locationMap[player.location].enemies.concat(action.randomMummy)
                     }
 
                     const updateLocationMap = {
@@ -581,9 +577,9 @@ export function gameReducer(state, action) {
                         ...state,
                         locationMap: updateLocationMap,
                         inCombat: true,
-                        enemyName: randomMummy,
-                        enemyHP: enemyMap[randomMummy].hp,
-                        messages: [...state.messages, `${randomMummy} is attacking!\n` +
+                        enemyName: action.randomMummy,
+                        enemyHP: enemyMap[action.randomMummy].hp,
+                        messages: [...state.messages, `${action.randomMummy} is attacking!\n` +
                             `Choose an attack strength (light, medium, heavy) or (l, m, h)`
                         ]
                     }
@@ -691,29 +687,29 @@ export function gameReducer(state, action) {
             //medium: average attack, no speed, damage, crit, or hit chance modifiers
             //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
         case 'COMBAT_ROUND': {
-            const attackStrength = action.attackStrength === 'l' ? 'light' :
-                (action.attackStrength === 'm' ? 'medium' :
-                    (action.attackStrength === 'h' ? 'heavy' : action.attackStrength))
-            if(['light', 'medium', 'heavy'].includes(attackStrength)){
+            const playerAttackStrength = action.playerAttackStrength === 'l' ? 'light' :
+                (action.playerAttackStrength === 'm' ? 'medium' :
+                    (action.playerAttackStrength === 'h' ? 'heavy' : action.playerAttackStrength))
+
+            if(['light', 'medium', 'heavy'].includes(playerAttackStrength)){
                 if(state.enemyName === 'wise-bear'){
-                    const bearMsg = pickRandom(state.bearMessages)
                     const updatePlayer = {
                         ...player,
-                        inv: bearMsg.startsWith('Almost') ? player.inv.concat('vaal-axe') : player.inv
+                        inv: action.bearMsg.startsWith('Almost') ? player.inv.concat('vaal-axe') : player.inv
                     }
 
                     return{
                         ...state,
                         inCombat: false,
                         player: updatePlayer,
-                        bearMessages: bearMsg.startsWith('Almost') ? removeFirstFoundItem(state.bearMessages, bearMsg) : state.bearMessages,
-                        messages: [...state.messages, `You attempt to swing at the bear with ${attackStrength} strength.\n` + bearMsg]
+                        bearMessages: action.bearMsg.startsWith('Almost') ? removeFirstFoundItem(state.bearMessages, action.bearMsg) : state.bearMessages,
+                        messages: [...state.messages, `You attempt to swing at the bear with ${playerAttackStrength} strength.\n` + action.bearMsg]
                     }
                 }
 
                 let playerTurn = true
                 const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
-                const [damageToEnemy, playerHitIsACrit] = calculateDamage(player, playerBaseDamage, attackStrength, player.totalCrit, state.enemyName, enemyMap[state.enemyName].weakness, playerTurn)
+                const [damageToEnemy, playerHitIsACrit] = calculateDamage(player, playerBaseDamage, playerAttackStrength, player.totalCrit, state.enemyName, enemyMap[state.enemyName].weakness, playerTurn)
                 const playerHitMessage = damageToEnemy === -1 ? 
                 `Your attack misses.\n` :
                 (playerHitIsACrit ?
@@ -723,16 +719,16 @@ export function gameReducer(state, action) {
                 if(state.enemyHP - damageToEnemy <= 0){
                     const gold = enemyMap[state.enemyName].gold
                     var drops = enemyMap[state.enemyName].itemDrops
-                    const keyDropChance = .3
                     const mummies = ['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']
                     var updateLocationMap = {
                         ...locationMap
                     }
 
+                    var brownKeyDropped = state.brownKeyDropped
                     if(mummies.includes(state.enemyName)){
-                        if(keyDropChance > Math.random() && !state.brownKeyDropped){
+                        if(action.dropKey){
                             drops = drops.concat('brown-key')
-                            state.brownKeyDropped = true
+                            brownKeyDropped = true
                         }
                         //remove mummy
                         const updateLocation = {
@@ -764,6 +760,7 @@ export function gameReducer(state, action) {
                         inCombat: false,
                         player: updatePlayer,
                         locationMap: updateLocationMap,
+                        brownKeyDropped: brownKeyDropped,
                         messages: [...state.messages, playerHitMessage +
                             `You have killed the ${state.enemyName}.\n` +
                             `You gain ${gold} gold` + dropsString + addTownMessage
@@ -773,26 +770,18 @@ export function gameReducer(state, action) {
 
                 // ---enemy turn----
                 playerTurn = false
-                const enemyAttackStrength = pickRandomItemWithWeights(enemyMap[state.enemyName].damageType, [.65, .25, .1])
-                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(player, enemyMap[state.enemyName].damage, enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
+                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(player, enemyMap[state.enemyName].damage, action.enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
                 const enemyHitMessage = damageToPlayer === -1 ? 
                 `The ${state.enemyName} misses you.\n` :
                 (enemyHitIsACrit ? 
-                    `The ${state.enemyName} CRITS you with a ${enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`:
-                    `The ${state.enemyName} hits you with a ${enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`)
+                    `The ${state.enemyName} CRITS you with a ${action.enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`:
+                    `The ${state.enemyName} hits you with a ${action.enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`)
                 
 
                 if(player.currentHP - damageToPlayer <= 0){
                     return{
-                        player: state.initialPlayer,
-                        locationMap: state.initialLocationMap,
+                        ...cloneDeep(initialState),
                         messages: [enemyHitMessage + `You have died. :(\nType 'help' or 'h' for a list of commands`],
-                        awaitingBuyInput: false,
-                        awaitingSellInput: false,
-                        inCombat: false,
-                        enemyName: '',
-                        enemyHP: 0,
-                        brownKeyDropped: false
                     }
                 }
 
@@ -813,7 +802,7 @@ export function gameReducer(state, action) {
                 return{
                     ...state,
                     inCombat: true,
-                    messages: [...state.messages, `${attackStrength} is not an attack strength.`]
+                    messages: [...state.messages, `${playerAttackStrength} is not an attack strength.`]
                 }
             }
         }
@@ -822,10 +811,10 @@ export function gameReducer(state, action) {
             return {
                 ...state,
                 messages: [...state.messages, action.message]
-            };
+            }
         }
 
         default:
-            return state;
+            return state
     }
 }

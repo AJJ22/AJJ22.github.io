@@ -1,4 +1,4 @@
-import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts';
+import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts'
 
 
     //#region Helper Functions
@@ -17,37 +17,41 @@ import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts
 
     //TODO: remove if unused
     function shuffle(array) {
-        let currentIndex = array.length;
+        let currentIndex = array.length
 
         // While there remain elements to shuffle...
         while (currentIndex !== 0) {
 
             // Pick a remaining element...
-            let randomIndex = Math.floor(Math.random() * currentIndex);
-            currentIndex--;
+            let randomIndex = Math.floor(Math.random() * currentIndex)
+            currentIndex--
 
             // And swap it with the current element.
-            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
         }
     }
 
     export function pickRandomItemWithWeights(items, weights) {
-        var i;
+        var i
 
         for (i = 1; i < weights.length; i++)
-            weights[i] += weights[i - 1];
+            weights[i] += weights[i - 1]
         
-        var random = Math.random() * weights[weights.length - 1];
+        var random = Math.random() * weights[weights.length - 1]
         
         for (i = 0; i < weights.length; i++)
             if (weights[i] > random)
-                break;
+                break
         
-        return items[i];
+        return items[i]
     }
 
     export function pickRandom(list){
         return list[Math.floor(Math.random() * list.length)]
+    }
+
+    export function doesKeyDrop(probability, keyAlreadyDropped){
+        return Math.random() < probability && !keyAlreadyDropped
     }
     //#endregion
 
@@ -171,7 +175,7 @@ import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts
             "medium": 1,
             "light": .85
         }
-
+        //TODO: this is causing the gameReducer to not be pure. if i want to fix, i should pull the crit call out into the driver
         if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
             //console.log('CRIT!')
             return [baseDamage * 1.75, true]
@@ -195,7 +199,7 @@ import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts
         
         const genericChanceToHit = playerTurn ? player.totalChanceToHit : enemyMap[enemyName].chanceToHit * (1 - (.01 * player.dex))
         const hitChanceForCurrentAttack = genericChanceToHit * hitChanceBasedOnAttackStrength[attackStrength]
-        
+        //TODO: same as above. causing gameReducer to not be pure, pull hit call out into driver
         return hitChanceForCurrentAttack > Math.random()
     }
     //#endregion
