@@ -175,7 +175,7 @@ import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts
             "medium": 1,
             "light": .85
         }
-
+        //TODO: this is causing the gameReducer to not be pure. if i want to fix, i should pull the crit call out into the driver
         if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
             //console.log('CRIT!')
             return [baseDamage * 1.75, true]
@@ -199,7 +199,7 @@ import { weaponMap, armorMap, enemyMap } from '../textGame2019_objectCreation.ts
         
         const genericChanceToHit = playerTurn ? player.totalChanceToHit : enemyMap[enemyName].chanceToHit * (1 - (.01 * player.dex))
         const hitChanceForCurrentAttack = genericChanceToHit * hitChanceBasedOnAttackStrength[attackStrength]
-        
+        //TODO: same as above. causing gameReducer to not be pure, pull hit call out into driver
         return hitChanceForCurrentAttack > Math.random()
     }
     //#endregion
