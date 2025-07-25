@@ -1,7 +1,7 @@
 import { useReducer, useState } from 'react'
-import { gameReducer, initialState } from './redux/textGame2019_characterHandler.ts'
-import { pickRandom, pickRandomItemWithWeights, doesKeyDrop } from './redux/textGame2019_helperFunctions.ts'
-import { enemyMap } from './textGame2019_objectCreation.ts'
+import { gameReducer, initialState } from './redux/characterHandler.ts'
+import { pickRandom, pickRandomItemWithWeights, doesKeyDrop, fish } from './redux/helperFunctions.ts'
+import { enemyMap } from './objectCreation.ts'
 
 export function useGameLogic() {
     const [inputValue, setInputValue] = useState('')
@@ -24,6 +24,8 @@ export function useGameLogic() {
 
     function processCommand(cmd) {
         if(!state.awaitingBuyInput && !state.awaitingSellInput && !state.inCombat){
+            //TODO: should this be a switch statement? it might be easier to read. but i can't use || operator. 
+            // i would have to have 2 cases for each if block using ||. it's not quite double the statements, but close
             if (cmd === 'help' || cmd === 'h'){
                 dispatch({ type: 'HELP' })
             }
@@ -72,8 +74,14 @@ export function useGameLogic() {
             else if(cmd === 'unlock' || cmd === 'u'){
                 dispatch({ type: 'UNLOCK_ROOM' })
             }
+            else if(cmd === 'search'){
+                dispatch({ type: 'SEARCH' })
+            }
             else if(cmd === 'rest' || cmd === 'r'){
                 dispatch({ type: 'REST' })
+            }
+            else if(cmd === 'return'){
+                dispatch({ type: 'RETURN' })
             }
             else if(cmd === 'open-coffin' || cmd === 'o'){
                 const randomMummy = pickRandom(['gnome-mummy', 'hobbit-mummy', 'average-mummy', 'ronnie-mummy', 'andre-the-giant-mummy']) 
@@ -81,6 +89,10 @@ export function useGameLogic() {
             }
             else if(cmd === 'jump' || cmd === 'j'){
                 dispatch({ type: 'JUMP' })
+            }
+            else if(cmd === 'fish' || cmd === 'f'){
+                const fishCaught = fish()
+                dispatch({ type: 'FISH', fishCaught })
             }
             else if(cmd.startsWith('a ') || cmd.startsWith('attack ')){
                 const enemy = cmd.split(' ')[1]

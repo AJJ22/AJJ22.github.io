@@ -1,4 +1,4 @@
-import data from './data/textGame2019_Data.json'
+import data from './data/data.json'
 ////TODO: BUFF flat enemy dmg, nerf range of chance-based damage. like extra crit dmg, dmgBasedOnType, & weakness dmg
 ////      The enemies should have a smaller range of damage, 
 //             EX: right now a rat can do 0 dmg or 20 dmg. the rat should do 7-10 dmg every hit
@@ -95,6 +95,7 @@ interface Location{
     floorItems: string[]
     enemies: string[]
     lockedRooms: any[]
+    underwater?: boolean
     itemsForSale?: string[]
 }
 /*
@@ -166,7 +167,7 @@ const armor = armorStat + armorMap[armorPiece].armorValue //total damage reducti
 
 const weapon = "knife"
 
-const location = "burial-chamber"
+const location = "town"
 const inv = []
 const gold = 10
 

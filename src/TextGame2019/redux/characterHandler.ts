@@ -1,6 +1,6 @@
-import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../textGame2019_objectCreation.ts'
+import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../objectCreation.ts'
 import { removeFirstFoundItem, isAPotion, updateChanceToHit, updateHP, updateArmor, updateCritChance, calculateDamage, addLocationToExits, 
-    removeEnemy } from './textGame2019_helperFunctions.ts'
+    removeEnemy } from './helperFunctions.ts'
 import cloneDeep from 'lodash/cloneDeep'
 
 export const initialState = {
@@ -21,6 +21,7 @@ export function gameReducer(state, action) {
     const { player, locationMap } = state
     //TODO: add autocomplete feature? tab will check the command you enter, then loop through the possible 2nd command (items, enemies, locations, etc... based on what you enter first)
     //TODO: implement saves. the user can save the state, close the page and re-load the state later. they can also act as checkpoints, if you die, you return to your last save state.
+    //TODO: break calculateDamage up into calculatePlayerDamage & calculateEnemyDamage. these can do their own weakness multiplier stuff, then call a common calculateDamage function after. this should be more readable
     switch (action.type) {
         case 'HELP': {
             return {
@@ -30,14 +31,14 @@ export function gameReducer(state, action) {
         }
 
         case 'LOOK': {
-            const enemiesHere = locationMap[player.location].enemies
+            const mermaidMsg = player.location === 'mermaid-house' ? `There is a sign near the door saying 'Will return you to the surface *alive* for 20 gold fee'.` : ``
             return {
                 ...state,
                 messages: [...state.messages,
-                    `Currently in: ${player.location}\n` +
+                    `Currently in:   ${player.location}\n` +
                     `Takeable Items: ${locationMap[player.location].floorItems.join(', ') || 'None'}\n` +
                     `Places to move: ${locationMap[player.location].exits.join(', ') || 'None'}\n` +
-                    `Enemies: ` + (enemiesHere.length > 0 ? enemiesHere.join(', ') : 'None')
+                    `Enemies:        ${locationMap[player.location].enemies.join(', ') || 'None'}\n` + mermaidMsg
                 ]
             }
         }
@@ -88,12 +89,38 @@ export function gameReducer(state, action) {
                     }
                     message = '\nYou are hurt while forcing your way through.'
                 }
-                else if(action.direction === 'sandstorm' && player.currentHP - 10 < 1)
-                {
+                else if(action.direction === 'sandstorm' && player.currentHP - 10 < 1){
                     return {
-                            ...state,
-                            messages: [...state.messages, `You cannot move through the sandstorm on such low health.`]
+                        ...state,
+                        messages: [...state.messages, `You cannot move through the sandstorm on such low health.`]
+                    }
+                }
+
+                else if(locationMap[action.direction].underwater){
+                    if(player.inv.includes('underwater-breathing-apparatus')){
+                        if(action.direction === 'rip-current'){
+                            return{
+                                ...state,
+                                player: {
+                                    ...player,
+                                    location: "underwater-cavern"
+                                },
+                                messages: [...state.messages, `You enter the current and are immediately sucked downwards.\n
+                                    You spin uncontrollably for minutes, though luckily for you, you are able to breath underwater.\n
+                                    You are eventually spit out into a large underwater-cavern.`]
+                            }
                         }
+                        updatePlayer = {
+                            ...player,
+                            location: action.direction
+                        }
+                    }
+                    else{
+                        return{
+                            ...state,
+                            messages: [...state.messages, `You cannot breathe underwater on your own.`]
+                        }
+                    }
                 }
                 else{
                     updatePlayer = {
@@ -102,13 +129,13 @@ export function gameReducer(state, action) {
                     }
                 }
                 
-                return {
+                return{
                     ...state,
                     player: updatePlayer,
                     previousLocation: prevLoc,
                     messages: [...state.messages, `You move to ${action.direction}.` + message]
                 }
-            } 
+            }
             else {
                 return {
                     ...state,
@@ -287,6 +314,8 @@ export function gameReducer(state, action) {
             }
         }
 
+        //TODO: should the player die if they drop the underwater-breathing-apparatus while in an underwater area?
+        //      should there be any consequence besides not being able to move to other locations?
         case 'DROP': {
             const itemsHere = locationMap[player.location].floorItems
             if(player.inv.includes(action.item)){
@@ -327,7 +356,7 @@ export function gameReducer(state, action) {
                 }
             }
 
-            let newInv = player.inv.filter(i => i !== action.item)
+            let newInv = removeFirstFoundItem(player.inv, action.item)
 
             // If swapping, add the old item back to inventory
             if (itemIsWeapon && player.weapon !== '') {
@@ -431,7 +460,12 @@ export function gameReducer(state, action) {
                 const itemMap = {...weaponMap, ...armorMap, ...foodMap, ...potionMap, ...keyMap}
                 let sellItems = ''
                 for(let i=0; i<player.inv.length; i++){
-                    sellItems += `${player.inv[i]}: ${itemMap[player.inv[i]].sellValue}\n`
+                    if(player.inv[i] === 'underwater-breathing-apparatus'){
+                        sellItems += `${player.inv[i]}: ???\n`
+                    }
+                    else{
+                        sellItems += `${player.inv[i]}: ${itemMap[player.inv[i]].sellValue}\n`
+                    }
                 }
 
                 //better way of doing the same thing. lambda functions are much more elegant
@@ -461,6 +495,19 @@ export function gameReducer(state, action) {
                 }
             }
 
+            if(action.item === 'underwater-breathing-apparatus'){
+                return{
+                    ...state,
+                    awaitingSellInput: true,
+                    player: {
+                        ...player,
+                        gold: player.gold + 30,
+                        inv: removeFirstFoundItem(player.inv, action.item)
+                    },
+                    messages: [...state.messages, `The shopkeeper looks at the item with confusion for a minute.\nHe eventually says, I've never seen something of the like, I'll give you 30 gold for it.`]
+                }
+            }
+
             if(player.inv.includes(action.item)){
                 const itemMap = {...weaponMap, ...armorMap, ...foodMap, ...potionMap, ...keyMap}
                 const updatePlayer = {
@@ -486,8 +533,8 @@ export function gameReducer(state, action) {
 
         case 'UNLOCK_ROOM': {
             const lockedRoom = locationMap[player.location].lockedRooms[0]
-            const roomIsLocked = locationMap[player.location].lockedRooms[2]
             const key = locationMap[player.location].lockedRooms[1]
+            const roomIsLocked = locationMap[player.location].lockedRooms[2]
 
             if(lockedRoom){
                 if(roomIsLocked){
@@ -539,6 +586,26 @@ export function gameReducer(state, action) {
             }
         }
 
+        case 'SEARCH': {
+            if(player.location === 'waterfall' && !locationMap[player.location].exits.includes('hidden-cave')){
+                return{
+                    ...state,
+                    locationMap: {
+                        ...locationMap,
+                        [player.location]: {
+                            ...locationMap[player.location],
+                            exits: locationMap[player.location].exits.concat('hidden-cave')
+                        }
+                    },
+                    messages: [...state.messages, `You find a small cave tucked away behind the waterfall.`]
+                }
+            }
+            return{
+                ...state,
+                messages: [...state.messages, `You search the area but find nothing of value.`]
+            }
+        }
+
         case 'REST': {
             if(player.location === 'house'){
                 const updatePlayer = {
@@ -556,6 +623,34 @@ export function gameReducer(state, action) {
                 return{
                     ...state,
                     messages: [...state.messages, `You cannot rest here.`]
+                }
+            }
+        }
+
+        case 'RETURN': {
+            if(player.location === 'mermaid-house'){
+                if(player.gold >= 20){
+                    return{
+                        ...state,
+                        player: {
+                            ...player,
+                            gold: player.gold - 20,
+                            location: 'lake'
+                        },
+                        messages: [...state.messages, `The mermaids thank you for your business as they carry you up through the rushing currents back to the lake surface.`]
+                    }
+                }
+                else{
+                    return{
+                        ...state,
+                        messages: [...state.messages, `You don't have enough gold.`]
+                    }
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, `There is nowhere to return to.`]
                 }
             }
         }
@@ -619,6 +714,26 @@ export function gameReducer(state, action) {
                     ...state,
                     messages: [...state.messages, `There is nowhere to jump to.`]
                 }
+            }
+        }
+
+        case 'FISH': {
+            if(!['river', 'cove', 'lake'].includes(player.location)){
+                return{
+                    ...state,
+                    messages: [...state.messages, `You cannot fish here.`]
+                }
+            }
+
+            const msg = action.fishCaught === '' ? `Unfortunatly, you catch nothing.` : `You caught a ${action.fishCaught}!`
+            
+            return{
+                ...state,
+                player: {
+                    ...player,
+                    inv: action.fishCaught === '' ? player.inv : player.inv.concat(action.fishCaught)
+                },
+                messages: [...state.messages, msg]
             }
         }
 
@@ -687,10 +802,9 @@ export function gameReducer(state, action) {
             //medium: average attack, no speed, damage, crit, or hit chance modifiers
             //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
         case 'COMBAT_ROUND': {
-            const playerAttackStrength = action.playerAttackStrength === 'l' ? 'light' :
-                (action.playerAttackStrength === 'm' ? 'medium' :
-                    (action.playerAttackStrength === 'h' ? 'heavy' : action.playerAttackStrength))
-
+            const strengthMap = {'l': 'light', 'm': 'medium', 'h': 'heavy'}
+            const playerAttackStrength = action.playerAttackStrength in strengthMap ? strengthMap[action.playerAttackStrength] : action.playerAttackStrength
+            
             if(['light', 'medium', 'heavy'].includes(playerAttackStrength)){
                 if(state.enemyName === 'wise-bear'){
                     const updatePlayer = {
