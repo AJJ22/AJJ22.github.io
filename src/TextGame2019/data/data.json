@@ -39,7 +39,14 @@
     { "name": "gingerbread", "sellValue": 6, "healAmount": 8, "increaseStat": "dex", "increaseStatAmount": 4 },
     { "name": "skooma", "sellValue": 8, "healAmount": 12, "increaseStat": "dex", "increaseStatAmount": 10 },
     { "name": "mushroom", "sellValue": 9, "healAmount": 6, "increaseStat": "hp", "increaseStatAmount": 9 },
-    { "name": "apple", "sellValue": 4, "healAmount": 8, "increaseStat": "hp", "increaseStatAmount": 5 }
+    { "name": "apple", "sellValue": 4, "healAmount": 8, "increaseStat": "hp", "increaseStatAmount": 5 },
+    { "name": "goober-fish", "sellValue": 1, "healAmount": 1, "increaseStat": "hp", "increaseStatAmount": 2 },
+    { "name": "puffer", "sellValue": 2, "healAmount": 2, "increaseStat": "strength", "increaseStatAmount": 3 },
+    { "name": "large-mouth-bass", "sellValue": 3, "healAmount": 3, "increaseStat": "dex", "increaseStatAmount": 4 },
+    { "name": "eel", "sellValue": 4, "healAmount": 4, "increaseStat": "armor", "increaseStatAmount": 4 },
+    { "name": "barracuda", "sellValue": 6, "healAmount": 6, "increaseStat": "strength", "increaseStatAmount": 6 },
+    { "name": "shark", "sellValue": 10, "healAmount": 10, "increaseStat": "dex", "increaseStatAmount": 8 },
+    { "name": "killer-whale", "sellValue": 15, "healAmount": 15, "increaseStat": "hp", "increaseStatAmount": 12 }
   ],
   "potions": [
     { "name": "dex-pot", "sellValue": 10, "potionType": "dex", "potionValue": 5 },
@@ -49,7 +56,8 @@
   ],
   "keys": [
     { "name": "brown-key", "sellValue": 7 },
-    { "name": "green-key", "sellValue": 8 }
+    { "name": "green-key", "sellValue": 8 },
+    { "name": "royal-key", "sellValue": 16 }
   ],
   "locations": [
     {
@@ -58,6 +66,7 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
+        "underwater": false,
         "itemsForSale": [
             "sword 5",
             "taco 6",
@@ -72,6 +81,7 @@
         "floorItems": ["dex-pot"],
         "enemies": [],
         "lockedRooms": [],
+        "underwater": false,
         "itemsForSale": [
             "cake 7",
             "taco 5",
@@ -88,6 +98,7 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
+        "underwater": false,
         "itemsForSale": [
             "golden-chainmail 14",
             "str-pot 30"
@@ -99,6 +110,7 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
+        "underwater": true,
         "itemsForSale": [
             "skooma 8",
             "dex-pot 30"
@@ -110,6 +122,7 @@
         "floorItems": [],
         "enemies": [],
         "lockedRooms": [],
+        "underwater": false,
         "itemsForSale": [
             "armor-pot 30"
         ]
@@ -119,63 +132,72 @@
         "exits": ["house", "desert", "woods", "lake", "church"],
         "floorItems": [],
         "enemies": ["rat"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "house",
         "exits": ["ryan-store", "town"],
         "floorItems": ["pizza", "knife", "cake", "clothes"],
         "enemies": ["bird"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "desert",
         "exits": ["town", "pyramid", "sandstorm"],
         "floorItems": ["taco"],
         "enemies": ["zombie"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "room-room",
         "exits": ["stair-d"],
         "floorItems": ["forbidden-fruit", "hp-pot", "dex-pot"],
         "enemies": ["spirit"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "pyramid",
         "exits": ["desert", "dark-hall", "dank-hall"],
         "floorItems": [],
         "enemies": ["bat"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "sandstorm",
         "exits": ["desert"],
         "floorItems": ["hp-pot", "battle-axe"],
         "enemies": ["ninja"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "dark-hall",
         "exits": ["pyramid", "abdi-store", "stair-a"],
         "floorItems": [""],
         "enemies": ["ghost", "rat"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "dank-hall",
         "exits": ["pyramid", "stair-b", "tdwl-room"],
         "floorItems": ["mushroom"],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "stair-a",
         "exits": ["dark-hall", "dim-room", "light-room", "black-room"],
         "floorItems": [""],
         "enemies": ["rat"],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": false
     },
     {
         "name": "dim-room",
@@ -378,49 +400,56 @@
         "exits": [],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": true
     },
     {
         "name": "underwater-cavern",
         "exits": ["rip-current", "underwater-highway"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": true
     },
     {
         "name": "underwater-highway",
         "exits": ["underwater-cavern", "bandit-merman-lair"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": true
     },
     {
         "name": "bandit-merman-lair",
         "exits": ["underwater-highway"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": true
     },
     {
         "name": "atlantis",
         "exits": ["underwater-highway", "mermaid-house", "joe-store"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": ["throne-room"]
+        "lockedRooms": ["throne-room", "royal-key", true],
+        "underwater": true
     },
     {
         "name": "mermaid-house",
         "exits": ["atlantis"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": true
     },
     {
         "name": "throne-room",
         "exits": ["atlantis"],
         "floorItems": [],
         "enemies": [],
-        "lockedRooms": []
+        "lockedRooms": [],
+        "underwater": true
     },
     {
         "name": "dry-riverbed",
@@ -461,7 +490,7 @@
         "name": "hidden-cave",
         "exits": ["waterfall"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["exiled-royal-guard"],
         "lockedRooms": []
     },
     {
@@ -771,6 +800,30 @@
         "itemDrops": ["hp-pot", "armor-pot", "rune-platemail"],
         "damageType": ["heavy", "medium", "light"],
         "weakness": ["light", "heavy", "medium"],
+        "isBoss": true
+    },
+    {
+        "name": "exiled-royal-guard",
+        "damage": 21,
+        "critChance": 0.5,
+        "chanceToHit": 0.9,
+        "hp": 60,
+        "gold": 30,
+        "itemDrops": ["royal-key"],
+        "damageType": ["light", "medium", "heavy"],
+        "weakness": ["medium", "light", "heavy"],
+        "isBoss": true
+    },
+    {
+        "name": "pirate-ship",
+        "damage": 23,
+        "critChance": 0.9,
+        "chanceToHit": 0.5,
+        "hp": 80,
+        "gold": 70,
+        "itemDrops": ["underwater-breathing-apparatus"],
+        "damageType": ["heavy", "medium", "light"],
+        "weakness": ["heavy", "medium", "light"],
         "isBoss": true
     }
   ]
