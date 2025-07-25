@@ -31,7 +31,6 @@ export function gameReducer(state, action) {
         }
 
         case 'LOOK': {
-            //const enemiesHere = locationMap[player.location].enemies
             const mermaidMsg = player.location === 'mermaid-house' ? `There is a sign near the door saying 'Will return you to the surface *alive* for 20 gold fee'.` : ``
             return {
                 ...state,
@@ -806,7 +805,6 @@ export function gameReducer(state, action) {
             const strengthMap = {'l': 'light', 'm': 'medium', 'h': 'heavy'}
             const playerAttackStrength = action.playerAttackStrength in strengthMap ? strengthMap[action.playerAttackStrength] : action.playerAttackStrength
             
-
             if(['light', 'medium', 'heavy'].includes(playerAttackStrength)){
                 if(state.enemyName === 'wise-bear'){
                     const updatePlayer = {
