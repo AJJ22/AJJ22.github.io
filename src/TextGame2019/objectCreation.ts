@@ -162,7 +162,7 @@ const armor = armorStat + armorMap[armorPiece].armorValue //total damage reducti
 const weapon: string = "knife"
 
 const location = "town"
-const inv = []
+const inv = ['str-pot', 'hp-pot', 'dex-pot', 'armor-pot', 'dex-pot', 'dex-pot', 'dex-pot', 'dex-pot', 'dex-pot']
 const gold = 10
 
 const dex = 5 //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
