@@ -88,7 +88,7 @@ export function updateChanceToHit(player){
     else{
         return{
             ...player,
-            totalChanceToHit: player.baseChanceToHit
+            totalChanceToHit: Math.round(player.baseChanceToHit * 100) / 100
         }
     }
 }
@@ -138,15 +138,13 @@ export function removeEnemy(player, locationMap, enemyName){
 //#endregion
 
 //#region CalculateDamage
-export function calculateDamage(player, baseDamage, attackStrength, critChance, enemyName, weakness, playerTurn){
+export function calculateDamage(player, baseDamage, attackStrength, weakness, playerTurn, isACrit){
     //these wil be changed based on what attack strength the current person used
     //////[increase dmg taken, reduce dmg given, accuracy, crit]
     // Heavy: opponent gets 100% accuracy & 250% increased crit
     // light: opponent takes 130% increased damage for your next hit & opponent deals 80% damage on their next hit
 
-    if(!hit(player, attackStrength, playerTurn, enemyName)){ return [-1, false] }
-
-    const increasedDmgBasedOnType = {
+    const strengthMultiplier = {
         "heavy": 1.3,
         "medium": 1,
         "light": .8
@@ -154,27 +152,22 @@ export function calculateDamage(player, baseDamage, attackStrength, critChance, 
 
     //calculate multiplier for: weakness to attack type
     //if enemy is weak to light attack and this attack is light, 1.55 dmg boost
-    let weakMult
+    const weaknessMultiplierArray = [1.55, 1, .7]
     const index = weakness.indexOf(attackStrength)
+    const weaknessMultiplier = !playerTurn && player.armorPiece === "" ? 1.55 : weaknessMultiplierArray[index]
     // if player is not wearing armor, weak to all attack types
-    if (!playerTurn && player.armorPiece === ""){
-        weakMult = [1.55, 1.55, 1.55]
-    }
-    else{
-        weakMult = [1.55, 1, .6]
-    }
-    const weaknessMultiplier = weakMult[index]
 
-    //add crit onto damage before returning final number
-    const [damageAfterCritCalc, isACrit] = crit(baseDamage * increasedDmgBasedOnType[attackStrength], critChance, attackStrength)
-    let finalDamage = Math.round(weaknessMultiplier * damageAfterCritCalc)
+    const damageAfterCritCalc = isACrit ? 
+    Math.round(baseDamage * strengthMultiplier[attackStrength] * weaknessMultiplier * 1.75) : 
+    Math.round(baseDamage * strengthMultiplier[attackStrength] * weaknessMultiplier)
+
+    const finalDamage = !playerTurn ? damageAfterCritCalc - player.armor : damageAfterCritCalc
     //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them (rat - leather armor) rat should be able to deal damage here
-    finalDamage = !playerTurn ? finalDamage - player.armor : finalDamage
 
     return finalDamage < 0 ? [0, isACrit] : [finalDamage, isACrit]
 }
 
-export function crit(baseDamage, critChance, attackStrength){
+export function crit(critChance, attackStrength){
     const critChanceBasedOnAttackStrength = {
         "heavy": 1.15,
         "medium": 1,
@@ -182,10 +175,9 @@ export function crit(baseDamage, critChance, attackStrength){
     }
     //TODO: this is causing the gameReducer to not be pure. if i want to fix, i should pull the crit call out into the driver
     if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
-        //console.log('CRIT!')
-        return [baseDamage * 1.75, true]
+        return true
     }
-    return [baseDamage, false]
+    return false
 }
 
 //calculate if hit or miss
@@ -196,14 +188,17 @@ export function hit(player, attackStrength, playerTurn, enemyName){
     // heavy: 120%
     // medium: 100%
     // light: 80%
+    const playerDodgeChance = (1 - (.01 * player.dex))
     const hitChanceBasedOnAttackStrength = {
         "heavy": .75,
         "medium": 1,
         "light": 1.25
     }
     
-    const genericChanceToHit = playerTurn ? player.totalChanceToHit : enemyMap[enemyName].chanceToHit * (1 - (.01 * player.dex))
-    const hitChanceForCurrentAttack = genericChanceToHit * hitChanceBasedOnAttackStrength[attackStrength]
+    const hitChanceForCurrentAttack = playerTurn ? 
+    player.totalChanceToHit         * hitChanceBasedOnAttackStrength[attackStrength] : 
+    enemyMap[enemyName].chanceToHit * hitChanceBasedOnAttackStrength[attackStrength] * playerDodgeChance
+
     //TODO: same as above. causing gameReducer to not be pure, pull hit call out into driver
     return hitChanceForCurrentAttack > Math.random()
 }
