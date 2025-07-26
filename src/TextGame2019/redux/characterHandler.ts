@@ -60,8 +60,8 @@ export function gameReducer(state, action) {
                     `Strength: ${player.strength}`,
                     `Dexterity: ${player.dex}`,
                     `Armor: ${player.armor}`,
-                    `Crit Chance: ${player.totalCrit * 100}%`,
-                    `Chance to Hit: ${player.totalChanceToHit * 100}%`,
+                    `Crit Chance: ${Math.round(player.totalCrit * 100)}%`,
+                    `Chance to Hit: ${Math.round(player.totalChanceToHit * 100)}%`,
                     `Weapon Equipped: ${player.weapon || 'None'}`,
                     `Armor Equipped: ${player.armorPiece || 'None'}`,
                     //``,
@@ -215,13 +215,16 @@ export function gameReducer(state, action) {
         case 'DRINK': {
             if(player.inv.includes(action.item) && isAPotion(action.item)){
                 if(action.item === 'dex-pot'){
+                    //if i want to use const here instead of let, i have to chanceToHit, HP, etc... inside the updatePlayer, meaning i would not be 
+                    // able to pass player objects in. i would have to use variables. either that or i get rid of the functions entirely, doing the calculation here
                     let updatePlayer = {
                         ...player,
                         dex: player.dex + potionMap[action.item].potionValue,
-                        baseChanceToHit: Math.round((.7 + player.dex * .005) * 100) / 100,
+                        baseChanceToHit: .6 + (player.dex + potionMap[action.item].potionValue) * .005,
                         inv: removeFirstFoundItem(player.inv, action.item)
                     }
                     updatePlayer = updateChanceToHit(updatePlayer)
+
                     return{
                         ...state,
                         player: updatePlayer,
@@ -802,9 +805,7 @@ export function gameReducer(state, action) {
             //medium: average attack, no speed, damage, crit, or hit chance modifiers
             //heavy: higher base damage (200% of normal), higher crit chance (120% of normal), higher chance to hit (130% of normal), but enemy can attack twice before your next attack
         case 'COMBAT_ROUND': {
-            const strengthMap = {'l': 'light', 'm': 'medium', 'h': 'heavy'}
-            const playerAttackStrength = action.playerAttackStrength in strengthMap ? strengthMap[action.playerAttackStrength] : action.playerAttackStrength
-            
+            const playerAttackStrength = action.playerAttackStrength
             if(['light', 'medium', 'heavy'].includes(playerAttackStrength)){
                 if(state.enemyName === 'wise-bear'){
                     const updatePlayer = {
@@ -823,7 +824,10 @@ export function gameReducer(state, action) {
 
                 let playerTurn = true
                 const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
-                const [damageToEnemy, playerHitIsACrit] = calculateDamage(player, playerBaseDamage, playerAttackStrength, player.totalCrit, state.enemyName, enemyMap[state.enemyName].weakness, playerTurn)
+                const [damageToEnemy, playerHitIsACrit] = action.playerHits ?
+                calculateDamage(player, playerBaseDamage, playerAttackStrength, enemyMap[state.enemyName].weakness, playerTurn, action.playerCrits) :
+                [-1, false]
+
                 const playerHitMessage = damageToEnemy === -1 ? 
                 `Your attack misses.\n` :
                 (playerHitIsACrit ?
@@ -884,7 +888,10 @@ export function gameReducer(state, action) {
 
                 // ---enemy turn----
                 playerTurn = false
-                const [damageToPlayer, enemyHitIsACrit] = calculateDamage(player, enemyMap[state.enemyName].damage, action.enemyAttackStrength, enemyMap[state.enemyName].critChance, state.enemyName, armorMap[player.armorPiece].weakness, playerTurn)
+                const [damageToPlayer, enemyHitIsACrit] = action.enemyHits ? 
+                calculateDamage(player, enemyMap[state.enemyName].damage, action.enemyAttackStrength, armorMap[player.armorPiece].weakness, playerTurn, action.enemyCrits) :
+                [-1, false]
+
                 const enemyHitMessage = damageToPlayer === -1 ? 
                 `The ${state.enemyName} misses you.\n` :
                 (enemyHitIsACrit ? 
