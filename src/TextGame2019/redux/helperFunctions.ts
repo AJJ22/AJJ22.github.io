@@ -162,7 +162,8 @@ export function calculateDamage(player, baseDamage, attackStrength, weakness, pl
     Math.round(baseDamage * strengthMultiplier[attackStrength] * weaknessMultiplier)
 
     const finalDamage = !playerTurn ? damageAfterCritCalc - player.armor : damageAfterCritCalc
-    //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them (rat - leather armor) rat should be able to deal damage here
+    //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them 
+    // (rat - leather armor) rat should be able to deal damage here
 
     return finalDamage < 0 ? [0, isACrit] : [finalDamage, isACrit]
 }
@@ -173,7 +174,7 @@ export function crit(critChance, attackStrength){
         "medium": 1,
         "light": .85
     }
-    //TODO: this is causing the gameReducer to not be pure. if i want to fix, i should pull the crit call out into the driver
+
     if(critChance * critChanceBasedOnAttackStrength[attackStrength] >= Math.random()){
         return true
     }
@@ -199,7 +200,6 @@ export function hit(player, attackStrength, playerTurn, enemyName){
     player.totalChanceToHit         * hitChanceBasedOnAttackStrength[attackStrength] : 
     enemyMap[enemyName].chanceToHit * hitChanceBasedOnAttackStrength[attackStrength] * playerDodgeChance
 
-    //TODO: same as above. causing gameReducer to not be pure, pull hit call out into driver
     return hitChanceForCurrentAttack > Math.random()
 }
 //#endregion

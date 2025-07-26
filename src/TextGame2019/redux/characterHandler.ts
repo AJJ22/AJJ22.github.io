@@ -21,7 +21,6 @@ export function gameReducer(state, action) {
     const { player, locationMap } = state
     //TODO: add autocomplete feature? tab will check the command you enter, then loop through the possible 2nd command (items, enemies, locations, etc... based on what you enter first)
     //TODO: implement saves. the user can save the state, close the page and re-load the state later. they can also act as checkpoints, if you die, you return to your last save state.
-    //TODO: break calculateDamage up into calculatePlayerDamage & calculateEnemyDamage. these can do their own weakness multiplier stuff, then call a common calculateDamage function after. this should be more readable
     switch (action.type) {
         case 'HELP': {
             return {
