@@ -78,7 +78,6 @@ export function gameReducer(state, action) {
             if (exitsHere.includes(action.direction)) {
                 var updatePlayer
                 var message = ''
-                const prevLoc = player.location
 
                 if(action.direction === 'sandstorm' && player.currentHP - 10 >= 1){
                     updatePlayer = {
@@ -104,6 +103,7 @@ export function gameReducer(state, action) {
                                     ...player,
                                     location: "underwater-cavern"
                                 },
+                                previousLocation: "underwater-cavern",
                                 messages: [...state.messages, `You enter the current and are immediately sucked downwards.\n
                                     You spin uncontrollably for minutes, though luckily for you, you are able to breath underwater.\n
                                     You are eventually spit out into a large underwater-cavern.`]
@@ -121,6 +121,12 @@ export function gameReducer(state, action) {
                         }
                     }
                 }
+                else if(action.direction === 'church' && locationMap[player.location].lockedRooms[2]){
+                    return{
+                        ...state,
+                        messages: [...state.messages, `The church is locked.`]
+                    }
+                }
                 else{
                     updatePlayer = {
                         ...player,
@@ -131,7 +137,7 @@ export function gameReducer(state, action) {
                 return{
                     ...state,
                     player: updatePlayer,
-                    previousLocation: prevLoc,
+                    previousLocation: player.location,
                     messages: [...state.messages, `You move to ${action.direction}.` + message]
                 }
             }
@@ -547,7 +553,7 @@ export function gameReducer(state, action) {
                         }
                         const updateLocation = {
                             ...locationMap[player.location],
-                            exits: locationMap[player.location].exits.concat(lockedRoom),
+                            exits: lockedRoom === 'church' ? locationMap[player.location].exits : locationMap[player.location].exits.concat(lockedRoom),
                             lockedRooms: [
                                 locationMap[player.location].lockedRooms[0],
                                 locationMap[player.location].lockedRooms[1],
@@ -823,15 +829,16 @@ export function gameReducer(state, action) {
 
                 let playerTurn = true
                 const playerBaseDamage = weaponMap[player.weapon].damage + Math.round(player.strength * player.strengthToBaseDamageScaling)
-                const [damageToEnemy, playerHitIsACrit] = action.playerHits ?
+                const [damageToEnemy, playerHitIsACrit, playerWeaknessIndex] = action.playerHits ?
                 calculateDamage(player, playerBaseDamage, playerAttackStrength, enemyMap[state.enemyName].weakness, playerTurn, action.playerCrits) :
                 [-1, false]
 
+                const playerWeaknessMsg = ['(enemy weakness)', '(neutral)', '(enemy is strong against)'][playerWeaknessIndex]
                 const playerHitMessage = damageToEnemy === -1 ? 
                 `Your attack misses.\n` :
                 (playerHitIsACrit ?
-                    `You CRIT the ${state.enemyName}, dealing ${damageToEnemy} damage.\n` :
-                    `You deal ${damageToEnemy} damage to the ${state.enemyName}.\n`)
+                    `You CRIT the ${state.enemyName} with a ${playerAttackStrength} attack ${playerWeaknessMsg}, dealing ${damageToEnemy} damage.\n` :
+                    `You deal ${damageToEnemy} damage to the ${state.enemyName} using a ${playerAttackStrength} attack ${playerWeaknessMsg}.\n`)
 
                 if(state.enemyHP - damageToEnemy <= 0){
                     const gold = enemyMap[state.enemyName].gold
@@ -856,6 +863,9 @@ export function gameReducer(state, action) {
                             ...locationMap,
                             [player.location]: updateLocation
                         }
+                    }
+                    else if(state.enemyName === 'fish' && action.fishKilled !== ''){
+                        drops = drops.concat(action.fishKilled)
                     }
 
                     const updatePlayer = {
@@ -887,15 +897,16 @@ export function gameReducer(state, action) {
 
                 // ---enemy turn----
                 playerTurn = false
-                const [damageToPlayer, enemyHitIsACrit] = action.enemyHits ? 
+                const [damageToPlayer, enemyCrits, enemyWeaknessIndex] = action.enemyHits ? 
                 calculateDamage(player, enemyMap[state.enemyName].damage, action.enemyAttackStrength, armorMap[player.armorPiece].weakness, playerTurn, action.enemyCrits) :
                 [-1, false]
-
+                
+                const enemyWeaknessMsg = ['(your weakness)', '(neutral)', '(you are strong against)'][enemyWeaknessIndex]
                 const enemyHitMessage = damageToPlayer === -1 ? 
                 `The ${state.enemyName} misses you.\n` :
-                (enemyHitIsACrit ? 
-                    `The ${state.enemyName} CRITS you with a ${action.enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`:
-                    `The ${state.enemyName} hits you with a ${action.enemyAttackStrength} attack, dealing ${damageToPlayer} damage.\n`)
+                (enemyCrits ? 
+                    `The ${state.enemyName} CRITS you with a ${action.enemyAttackStrength} attack ${enemyWeaknessMsg}, dealing ${damageToPlayer} damage.\n`:
+                    `The ${state.enemyName} hits you with a ${action.enemyAttackStrength} attack ${enemyWeaknessMsg}, dealing ${damageToPlayer} damage.\n`)
                 
 
                 if(player.currentHP - damageToPlayer <= 0){

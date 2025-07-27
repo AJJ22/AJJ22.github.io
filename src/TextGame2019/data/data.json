@@ -17,7 +17,8 @@
     { "name": "atziri-disfavour", "sellValue": 15, "damage": 34, "critChance": 1, "chanceToHit": 1 },
     { "name": "undisputed-best-axe", "sellValue": 30, "damage": 45, "critChance": 0.9, "chanceToHit": 0.9 },
     { "name": "mehrunes-razor", "sellValue": 28, "damage": 23, "critChance": 2.5, "chanceToHit": 2.5 },
-    { "name": "excalibur", "sellValue": 29, "damage": 32, "critChance": 1.5, "chanceToHit": 1.6 }
+    { "name": "excalibur", "sellValue": 29, "damage": 32, "critChance": 1.5, "chanceToHit": 1.6 },
+    { "name": "trident", "sellValue": 37, "damage": 37, "critChance": 1.7, "chanceToHit": 1.7 }
   ],
   "armor": [
     { "name": "", "sellValue": 0, "weakness": ["heavy", "medium", "light"], "armorValue": 0 },
@@ -38,8 +39,8 @@
     { "name": "taco", "sellValue": 3, "healAmount": 5, "increaseStat": "dex", "increaseStatAmount": 6 },
     { "name": "gingerbread", "sellValue": 6, "healAmount": 8, "increaseStat": "dex", "increaseStatAmount": 4 },
     { "name": "skooma", "sellValue": 8, "healAmount": 12, "increaseStat": "dex", "increaseStatAmount": 10 },
-    { "name": "mushroom", "sellValue": 9, "healAmount": 6, "increaseStat": "hp", "increaseStatAmount": 9 },
-    { "name": "apple", "sellValue": 4, "healAmount": 8, "increaseStat": "hp", "increaseStatAmount": 5 },
+    { "name": "mushroom", "sellValue": 4, "healAmount": 6, "increaseStat": "hp", "increaseStatAmount": 9 },
+    { "name": "apple", "sellValue": 3, "healAmount": 8, "increaseStat": "hp", "increaseStatAmount": 5 },
     { "name": "goober-fish", "sellValue": 1, "healAmount": 1, "increaseStat": "hp", "increaseStatAmount": 2 },
     { "name": "puffer", "sellValue": 2, "healAmount": 2, "increaseStat": "strength", "increaseStatAmount": 3 },
     { "name": "large-mouth-bass", "sellValue": 3, "healAmount": 3, "increaseStat": "dex", "increaseStatAmount": 4 },
@@ -52,12 +53,13 @@
     { "name": "dex-pot", "sellValue": 10, "potionType": "dex", "potionValue": 5 },
     { "name": "str-pot", "sellValue": 9, "potionType": "strength", "potionValue": 2 },
     { "name": "hp-pot", "sellValue": 7, "potionType": "hp", "potionValue": 4 },
-    { "name": "armor-pot", "sellValue": 12, "potionType": "armor", "potionValue": 2 }
+    { "name": "armor-pot", "sellValue": 12, "potionType": "armor", "potionValue": 1 }
   ],
   "keys": [
     { "name": "brown-key", "sellValue": 7 },
     { "name": "green-key", "sellValue": 8 },
-    { "name": "royal-key", "sellValue": 16 }
+    { "name": "royal-key", "sellValue": 16 },
+    { "name": "church-key", "sellValue": 24 }
   ],
   "locations": [
     {
@@ -71,8 +73,7 @@
             "sword 5",
             "taco 6",
             "apple 7",
-            "steel-platemail 14",
-            "light-chainmail 8"
+            "leather-armor 12"
         ]
     },
     {
@@ -88,7 +89,7 @@
             "hand-axe 8",
             "pizza 6",
             "nice-sword 10",
-            "leather-armor 10",
+            "light-chainmail 10",
             "hp-pot 30"
         ]
     },
@@ -101,6 +102,8 @@
         "underwater": false,
         "itemsForSale": [
             "golden-chainmail 14",
+            "battle-axe 11",
+            "longsword 12",
             "str-pot 30"
         ]
     },
@@ -113,6 +116,8 @@
         "underwater": true,
         "itemsForSale": [
             "skooma 8",
+            "gingerbread 10",
+            "shark 15",
             "dex-pot 30"
         ]
     },
@@ -124,6 +129,7 @@
         "lockedRooms": [],
         "underwater": false,
         "itemsForSale": [
+            "mushroom 8",
             "armor-pot 30"
         ]
     },
@@ -132,7 +138,7 @@
         "exits": ["house", "desert", "woods", "lake", "church"],
         "floorItems": [],
         "enemies": ["rat"],
-        "lockedRooms": [],
+        "lockedRooms": ["church", "church-key", true],
         "underwater": false
     },
     {
@@ -343,7 +349,7 @@
         "name": "darker-swamp",
         "exits": ["swamp", "shreks-place"],
         "floorItems": [],
-        "enemies": [""],
+        "enemies": [],
         "lockedRooms": []
     },
     {
@@ -407,7 +413,7 @@
         "name": "underwater-cavern",
         "exits": ["rip-current", "underwater-highway"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["fish"],
         "lockedRooms": [],
         "underwater": true
     },
@@ -415,7 +421,7 @@
         "name": "underwater-highway",
         "exits": ["underwater-cavern", "bandit-merman-lair"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["fish"],
         "lockedRooms": [],
         "underwater": true
     },
@@ -423,7 +429,7 @@
         "name": "bandit-merman-lair",
         "exits": ["underwater-highway"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["mermaid-highwayman", "mermaid-highwayman", "fish", "mermaid"],
         "lockedRooms": [],
         "underwater": true
     },
@@ -431,7 +437,7 @@
         "name": "atlantis",
         "exits": ["underwater-highway", "mermaid-house", "joe-store"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["royal-guard", "royal-guard", "fish"],
         "lockedRooms": ["throne-room", "royal-key", true],
         "underwater": true
     },
@@ -439,7 +445,7 @@
         "name": "mermaid-house",
         "exits": ["atlantis"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["fish", "mermaid"],
         "lockedRooms": [],
         "underwater": true
     },
@@ -447,7 +453,7 @@
         "name": "throne-room",
         "exits": ["atlantis"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["poseidon", "fish"],
         "lockedRooms": [],
         "underwater": true
     },
@@ -497,7 +503,7 @@
         "name": "cove",
         "exits": ["shoreline"],
         "floorItems": [],
-        "enemies": [],
+        "enemies": ["pirate-ship"],
         "lockedRooms": []
     }
   ],
@@ -803,13 +809,61 @@
         "isBoss": true
     },
     {
+        "name": "royal-guard",
+        "damage": 17,
+        "critChance": 0.4,
+        "chanceToHit": 0.75,
+        "hp": 45,
+        "gold": 20,
+        "itemDrops": [],
+        "attackStrength": ["light", "medium", "heavy"],
+        "weakness": ["medium", "light", "heavy"],
+        "isBoss": false
+    },
+    {
+        "name": "mermaid",
+        "damage": 11,
+        "critChance": 0.25,
+        "chanceToHit": 0.85,
+        "hp": 20,
+        "gold": 10,
+        "itemDrops": [],
+        "attackStrength": ["medium", "light", "heavy"],
+        "weakness": ["heavy", "light", "medium"],
+        "isBoss": false
+    },
+    {
+        "name": "mermaid-highwayman",
+        "damage": 14,
+        "critChance": 0.4,
+        "chanceToHit": 0.75,
+        "hp": 35,
+        "gold": 30,
+        "itemDrops": ["cutlass"],
+        "attackStrength": ["light", "medium", "heavy"],
+        "weakness": ["medium", "light", "heavy"],
+        "isBoss": false
+    },
+    {
+        "name": "fish",
+        "damage": 10,
+        "critChance": 0.3,
+        "chanceToHit": 0.85,
+        "hp": 20,
+        "gold": 7,
+        "itemDrops": [],
+        "attackStrength": ["light", "medium", "heavy"],
+        "weakness": ["light", "medium", "heavy"],
+        "isBoss": false
+    },
+    {
         "name": "exiled-royal-guard",
         "damage": 21,
         "critChance": 0.5,
         "chanceToHit": 0.9,
         "hp": 60,
-        "gold": 30,
-        "itemDrops": ["royal-key"],
+        "gold": 10,
+        "itemDrops": ["royal-key", "brass-dome"],
         "attackStrength": ["light", "medium", "heavy"],
         "weakness": ["medium", "light", "heavy"],
         "isBoss": true
@@ -820,10 +874,22 @@
         "critChance": 0.9,
         "chanceToHit": 0.5,
         "hp": 80,
-        "gold": 70,
+        "gold": 150,
         "itemDrops": ["underwater-breathing-apparatus"],
         "attackStrength": ["heavy", "medium", "light"],
         "weakness": ["heavy", "medium", "light"],
+        "isBoss": true
+    },
+    {
+        "name": "poseidon",
+        "damage": 27,
+        "critChance": 0.6,
+        "chanceToHit": 0.8,
+        "hp": 100,
+        "gold": 100,
+        "itemDrops": ["trident", "church-key"],
+        "attackStrength": ["medium", "light", "heavy"],
+        "weakness": ["light", "heavy", "medium"],
         "isBoss": true
     }
   ]
