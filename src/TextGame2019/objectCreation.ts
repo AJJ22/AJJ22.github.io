@@ -113,7 +113,7 @@ interface Enemy{
     hp: number
     gold: number
     itemDrops: string[]
-    damageType: string[]
+    attackStrength: string[]
     weakness: string[]
     isBoss: boolean
 }
@@ -144,7 +144,7 @@ export const enemyMap: Record<string, Enemy> = Object.fromEntries(enemies.map(e 
 
 
 
-const strength = 7 //used for damage modifier and health
+const strength = 5 //used for damage modifier and health
 const strengthToBaseDamageScaling = 1/2 //we multiply strength by this fraction, then add it to the baseDamage of an attack (smaller the fraction, less bonus damage player gets)
 const initialBaseHP = 15 //this is used for the maxHP calculation. we need to know what HP the player start with so the player can get bigger HP increases as the game goes on
 const baseHP = initialBaseHP //need this so i don't stack strength bonuses on top of eachother
@@ -155,21 +155,21 @@ const currentHP = maxHp //this will be how i track hp in battles, if you take da
 const totalCrit = .2 //chance to critically strike after everything has been factored in
 const baseCrit = .2 //only modified by stat pots and temporary bosts
 
-const dex = 10 //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
-                //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
-
-const baseChanceToHit = Math.round((.7 + dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
-const totalChanceToHit = baseChanceToHit //chanceToHit after all modifiers
-
-const armorStat = 5 //damage reduction stat can be increased with potions
+const armorStat = 0 //damage reduction stat can be increased with potions
 const armorPiece = "clothes" //what armor piece you are currently wearing
 const armor = armorStat + armorMap[armorPiece].armorValue //total damage reduction for calculating hits
 
-const weapon = "knife"
+const weapon: string = "knife"
 
 const location = "town"
-const inv = []
+const inv = ['str-pot', 'hp-pot', 'dex-pot', 'armor-pot', 'dex-pot', 'dex-pot', 'dex-pot', 'dex-pot', 'dex-pot']
 const gold = 10
+
+const dex = 5 //used for dodging & chance to hit (+ 0.05% chanceToHit / 10 dex) added before weapons
+                //dodge is currently at 1% dodge chance / 1 dex (maybe nerf this)
+
+const baseChanceToHit = Math.round((.6 + dex * .005) * 100) / 100 //base % chance attack will hit, before weapon modifier
+const totalChanceToHit = weapon !== "" ? Math.round((baseChanceToHit * weaponMap[weapon].chanceToHit) * 100) / 100 : Math.round((baseChanceToHit) * 100) / 100 //chanceToHit after all modifiers
 
 
 export const player: Character = {initialBaseHP, baseHP, maxHp, currentHP, strength, strengthToBaseDamageScaling, totalCrit, 

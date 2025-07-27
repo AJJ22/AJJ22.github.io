@@ -1,6 +1,6 @@
 import { useReducer, useState } from 'react'
 import { gameReducer, initialState } from './redux/characterHandler.ts'
-import { pickRandom, pickRandomItemWithWeights, doesKeyDrop, fish } from './redux/helperFunctions.ts'
+import { pickRandom, pickRandomItemWithWeights, doesKeyDrop, fish, crit, hit } from './redux/helperFunctions.ts'
 import { enemyMap } from './objectCreation.ts'
 
 export function useGameLogic() {
@@ -111,12 +111,20 @@ export function useGameLogic() {
             dispatch({ type: 'SELL_STEP_2', item })
         }
         else if(state.inCombat){
-            const playerAttackStrength = cmd
-            const enemyAttackStrength = state.enemyName === 'wise-bear' ? '' : pickRandomItemWithWeights(enemyMap[state.enemyName].damageType, [.65, .25, .1])
             const dropKey = doesKeyDrop(.3, state.brownKeyDropped)
             const bearMsg = pickRandom(state.bearMessages)
 
-            dispatch({ type: 'COMBAT_ROUND', playerAttackStrength, enemyAttackStrength, dropKey, bearMsg })
+            const strengthMap = {'l': 'light', 'm': 'medium', 'h': 'heavy'}
+            const playerAttackStrength = cmd in strengthMap ? strengthMap[cmd] : cmd
+            const enemyAttackStrength = state.enemyName === 'wise-bear' ? '' : pickRandomItemWithWeights(enemyMap[state.enemyName].attackStrength, [.65, .25, .1])
+
+            const playerCrits = crit(state.player.totalCrit, playerAttackStrength)
+            const enemyCrits = crit(enemyMap[state.enemyName].critChance, enemyAttackStrength)
+
+            const playerHits = hit(state.player, playerAttackStrength, true, state.enemyName)
+            const enemyHits = hit(state.player, enemyAttackStrength, false, state.enemyName)
+
+            dispatch({ type: 'COMBAT_ROUND', playerAttackStrength, enemyAttackStrength, playerCrits, enemyCrits, playerHits, enemyHits, dropKey, bearMsg })
         }
         else {
             dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." })
