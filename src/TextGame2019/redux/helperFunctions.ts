@@ -15,6 +15,7 @@ export let isAPotion = (item) => {
 }
 
 //TODO: remove if unused
+/*
 function shuffle(array) {
     let currentIndex = array.length
 
@@ -28,7 +29,7 @@ function shuffle(array) {
         // And swap it with the current element.
         [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]]
     }
-}
+}*/
 
 export function pickRandomItemWithWeights(items, weights) {
     var i
@@ -53,9 +54,13 @@ export function doesKeyDrop(probability, keyAlreadyDropped){
     return Math.random() < probability && !keyAlreadyDropped
 }
 
-export function fish(){
+export function fish(combatAgainstFish){
     const fishList = ['goober-fish', 'puffer', 'large-mouth-bass', 'eel', 'barracuda', 'shark', 'killer-whale']
     const weights = [15, 13, 9, 6, 4, 2, 1]
+    
+    if(combatAgainstFish){
+        return pickRandomItemWithWeights(fishList, weights)
+    }
     return Math.random() < .3 ? pickRandomItemWithWeights(fishList, weights) : ''
 }
 //#endregion
@@ -165,7 +170,7 @@ export function calculateDamage(player, baseDamage, attackStrength, weakness, pl
     //TODO: nerf armor values? might be too strong, enemies doing 0 damage often when wearing armor meant for them 
     // (rat - leather armor) rat should be able to deal damage here
 
-    return finalDamage < 0 ? [0, isACrit] : [finalDamage, isACrit]
+    return finalDamage < 0 ? [0, isACrit, index] : [finalDamage, isACrit, index]
 }
 
 export function crit(critChance, attackStrength){

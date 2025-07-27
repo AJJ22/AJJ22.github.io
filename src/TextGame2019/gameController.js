@@ -91,7 +91,7 @@ export function useGameLogic() {
                 dispatch({ type: 'JUMP' })
             }
             else if(cmd === 'fish' || cmd === 'f'){
-                const fishCaught = fish()
+                const fishCaught = fish(false)
                 dispatch({ type: 'FISH', fishCaught })
             }
             else if(cmd.startsWith('a ') || cmd.startsWith('attack ')){
@@ -113,6 +113,7 @@ export function useGameLogic() {
         else if(state.inCombat){
             const dropKey = doesKeyDrop(.3, state.brownKeyDropped)
             const bearMsg = pickRandom(state.bearMessages)
+            const fishKilled = fish(true)
 
             const strengthMap = {'l': 'light', 'm': 'medium', 'h': 'heavy'}
             const playerAttackStrength = cmd in strengthMap ? strengthMap[cmd] : cmd
@@ -124,7 +125,7 @@ export function useGameLogic() {
             const playerHits = hit(state.player, playerAttackStrength, true, state.enemyName)
             const enemyHits = hit(state.player, enemyAttackStrength, false, state.enemyName)
 
-            dispatch({ type: 'COMBAT_ROUND', playerAttackStrength, enemyAttackStrength, playerCrits, enemyCrits, playerHits, enemyHits, dropKey, bearMsg })
+            dispatch({ type: 'COMBAT_ROUND', playerAttackStrength, enemyAttackStrength, playerCrits, enemyCrits, playerHits, enemyHits, dropKey, bearMsg, fishKilled })
         }
         else {
             dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." })
