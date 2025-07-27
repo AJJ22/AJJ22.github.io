@@ -1,5 +1,5 @@
 import { useReducer, useState } from 'react'
-import { gameReducer, initialState } from './redux/characterHandler.ts'
+import { gameReducer, initialState } from './redux/commandHandler.ts'
 import { pickRandom, pickRandomItemWithWeights, doesKeyDrop, fish, crit, hit } from './redux/helperFunctions.ts'
 import { enemyMap } from './objectCreation.ts'
 
