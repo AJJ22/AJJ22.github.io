@@ -1,7 +1,6 @@
 import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../objectCreation.ts'
 import { removeFirstFoundItem, isAPotion, updateChanceToHit, updateHP, updateArmor, updateCritChance, calculateDamage, addLocationToExits, 
-    removeEnemy, save, load, 
-    deleteData} from './helperFunctions.ts'
+    removeEnemy, save, load, deleteData } from './helperFunctions.ts'
 import cloneDeep from 'lodash/cloneDeep'
 
 export const initialState = {
