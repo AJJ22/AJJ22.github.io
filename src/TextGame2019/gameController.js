@@ -84,6 +84,10 @@ export function useGameLogic() {
         jump: () => dispatch({ type: 'JUMP' }),
         j: () => dispatch({ type: 'JUMP' }),
 
+        save: () => dispatch({ type: 'SAVE' }),
+        load: () => dispatch({ type: 'LOAD' }),
+        delete: () => dispatch({ type: 'DELETE' }),
+
         opencoffin: handleCoffin,
         o: handleCoffin,
 
@@ -92,7 +96,7 @@ export function useGameLogic() {
     }
 
     function processCommand(cmd){
-        if(!state.awaitingBuyInput && !state.awaitingSellInput && !state.inCombat){
+        if(!state.awaitingBuyInput && !state.awaitingSellInput && !state.inCombat && !state.awaitingSaveConfirm && !state.awaitingLoadConfirm && !state.awaitingDeleteConfirm){
             //multi-word commands. if it requires a space + a 2nd word to make sense
             const [base, param] = cmd.toLowerCase().split(' ')
 
@@ -139,6 +143,15 @@ export function useGameLogic() {
         }
         else if(state.inCombat){
             handleCombat(cmd)
+        }
+        else if(state.awaitingSaveConfirm){
+            dispatch({ type: 'SAVE_STEP_2', cmd })
+        }
+        else if(state.awaitingLoadConfirm){
+            dispatch({ type: 'LOAD_STEP_2', cmd })
+        }
+        else if(state.awaitingDeleteConfirm){
+            dispatch({ type: 'DELETE_STEP_2', cmd })
         }
         else {
             dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." })

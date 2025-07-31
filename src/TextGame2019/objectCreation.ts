@@ -196,7 +196,11 @@ export const helpMsg = "---- COMMANDS ----\n" +
                 "  e     <item>      (equip)\n" +
                 "  a     <enemy>     (attack)\n" +
                 "  eat   <food>\n" +
-                "  drink <potion>"
+                "  drink <potion>\n" +
+                " ----\n" +
+                "  save (save the current game state)\n" +
+                "  load (reload back to your last save)\n" +
+                "  delete (delete your save state)"
 
 export const bearMessages = [
     "He catches your hand like it was a child's while gazing at you with a calm interest.\n" +

@@ -65,6 +65,23 @@ export function fish(combatAgainstFish){
 }
 //#endregion
 
+//#region Save/Load State
+
+export function save(state){
+    localStorage.setItem('stateData', JSON.stringify(state))
+}
+
+export function load(){
+    const playerDataString = localStorage.getItem('stateData')
+    return playerDataString === null ? -1 : JSON.parse(playerDataString)
+}
+
+export function deleteData(){
+    localStorage.removeItem('stateData')
+}
+
+//#endregion
+
 //#region Update Player Stats
 
 //when you change something that affects a stat, these should be used

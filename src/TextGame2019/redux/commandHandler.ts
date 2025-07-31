@@ -1,6 +1,6 @@
 import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../objectCreation.ts'
 import { removeFirstFoundItem, isAPotion, updateChanceToHit, updateHP, updateArmor, updateCritChance, calculateDamage, addLocationToExits, 
-    removeEnemy } from './helperFunctions.ts'
+    removeEnemy, save, load, deleteData } from './helperFunctions.ts'
 import cloneDeep from 'lodash/cloneDeep'
 
 export const initialState = {
@@ -14,14 +14,16 @@ export const initialState = {
     enemyName: '',
     enemyHP: 0,
     brownKeyDropped: false,
-    bearMessages: bearMessages
+    bearMessages: bearMessages,
+    awaitingSaveConfirm: false,
+    awaitingLoadConfirm: false,
+    awaitingDeleteConfirm: false
 }
 
 export function gameReducer(state, action) {
     const { player, locationMap } = state
     //TODO: add unit tests
     //TODO: add autocomplete feature? tab will check the command you enter, then loop through the possible 2nd command (items, enemies, locations, etc... based on what you enter first)
-    //TODO: implement saves. the user can save the state, close the page and re-load the state later. they can also act as checkpoints, if you die, you return to your last save state.
     switch (action.type) {
         case 'HELP': {
             return {
@@ -150,6 +152,8 @@ export function gameReducer(state, action) {
             }
         }
 
+        //TODO: rework - back command should use a FILO system (or a stack). you put location on the stack as you move. if you use 'back' it pops the top from the stack.
+        //if you hit back enough times, you will always end up at town.
         case 'BACK': {
             if(state.previousLocation !== '' && state.previousLocation !== player.location){
                 const currentLocation = player.location
@@ -745,6 +749,93 @@ export function gameReducer(state, action) {
                     inv: action.fishCaught === '' ? player.inv : player.inv.concat(action.fishCaught)
                 },
                 messages: [...state.messages, msg]
+            }
+        }
+
+        //TODO: these are violating the pure reducer principle
+        //fix it
+        case 'SAVE': {
+            return{
+                ...state,
+                awaitingSaveConfirm: true,
+                messages: [...state.messages, 'Do you want to save the game? (y/n)']
+            }
+        }
+        
+        case 'SAVE_STEP_2': {
+            const saveMsg = ['yes', 'y'].includes(action.cmd) ? 'You save the game.' :
+                (['no', 'n'].includes(action.cmd) ? 'You cancel the save.' :
+                    'Not a valid command.')
+
+            if(['yes', 'y'].includes(action.cmd)){
+                state.awaitingSaveConfirm = false
+                save(state)
+            }
+            
+            return{
+                ...state,
+                awaitingSaveConfirm: ['yes', 'y', 'no', 'n'].includes(action.cmd) ? false : true,
+                messages: [...state.messages, saveMsg]
+            }
+        }
+
+        case 'LOAD': {
+            return{
+                ...state,
+                awaitingLoadConfirm: true,
+                messages: [...state.messages, 'Do you want to load the game? (y/n)']
+            }
+        }
+
+        case 'LOAD_STEP_2': {
+            //this is an example of the if/else if/else chain i mentioned. i think this is harder to read & maintain.
+            if(['yes', 'y'].includes(action.cmd)){
+                const loadedState = load()
+                const loadMsg = loadedState === -1 ? 'You do not have a save point yet.' : 'You reload to the last save point.'
+
+                return{
+                    ...loadedState === -1 ? state : loadedState,
+                    awaitingLoadConfirm: false,
+                    messages: [...state.messages, loadMsg]
+                }
+            }
+            else if(['no', 'n'].includes(action.cmd)){
+                return{
+                    ...state,
+                    awaitingLoadConfirm: false,
+                    messages: [...state.messages, 'You cancel the load.']
+                }
+            }
+            else{
+                return{
+                    ...state,
+                    messages: [...state.messages, 'Not a valid command.']
+                }
+            }
+        }
+
+        case 'DELETE': {
+            return{
+                ...state,
+                awaitingDeleteConfirm: true,
+                messages: [...state.messages, 'Do you want to delete your save file? (y/n)']
+            }
+        }
+
+        case 'DELETE_STEP_2': {
+            //wanted to try this out instead of the if/else if/else chain. is it cleaner? i personally like it a lot more
+            const deleteMsg = ['yes', 'y'].includes(action.cmd) ? 'You delete the save file.' :
+                (['no', 'n'].includes(action.cmd) ? 'You cancel the delete.' : 
+                    'Not a valid command.')
+
+            if(['yes', 'y'].includes(action.cmd)){
+                deleteData()
+            }
+
+            return{
+                ...state,
+                awaitingDeleteConfirm: ['yes', 'y', 'no', 'n'].includes(action.cmd) ? false : true,
+                messages: [...state.messages, deleteMsg]
             }
         }
 
