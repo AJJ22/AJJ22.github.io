@@ -96,7 +96,29 @@ export function useGameLogic() {
     }
 
     function processCommand(cmd){
-        if(!state.awaitingBuyInput && !state.awaitingSellInput && !state.inCombat && !state.awaitingSaveConfirm && !state.awaitingLoadConfirm && !state.awaitingDeleteConfirm){
+        //these are run depending on state managed variables
+        //if the player has entered into a an multi-command action such as combat or a shop interface
+        if(state.awaitingBuyInput){
+            const item = cmd
+            dispatch({ type: 'BUY_STEP_2', item })
+        }
+        else if(state.awaitingSellInput){
+            const item = cmd
+            dispatch({ type: 'SELL_STEP_2', item })
+        }
+        else if(state.inCombat){
+            handleCombat(cmd)
+        }
+        else if(state.awaitingSaveConfirm){
+            dispatch({ type: 'SAVE_STEP_2', cmd })
+        }
+        else if(state.awaitingLoadConfirm){
+            dispatch({ type: 'LOAD_STEP_2', cmd })
+        }
+        else if(state.awaitingDeleteConfirm){
+            dispatch({ type: 'DELETE_STEP_2', cmd })
+        }
+        else{
             //multi-word commands. if it requires a space + a 2nd word to make sense
             const [base, param] = cmd.toLowerCase().split(' ')
 
@@ -122,39 +144,13 @@ export function useGameLogic() {
                 return dispatch({ type: 'ATTACK', enemy: param })
             }
 
-            //we have checked all the multi-word commands, it's now either a single-word command or gibberish
+            //single-word commands or gibberish (last case scenario)
             const baseCmdHandler = commandMap[base]
             if (baseCmdHandler) {
                 return baseCmdHandler()
             }
 
             dispatch({ type: 'ADD_MESSAGE', message: 'Unknown command.' })
-        }
-
-        //these are run depending on state managed variables
-        //if the player has entered into a an multi-command action such as combat or a shop interface
-        else if(state.awaitingBuyInput){
-            const item = cmd
-            dispatch({ type: 'BUY_STEP_2', item })
-        }
-        else if(state.awaitingSellInput){
-            const item = cmd
-            dispatch({ type: 'SELL_STEP_2', item })
-        }
-        else if(state.inCombat){
-            handleCombat(cmd)
-        }
-        else if(state.awaitingSaveConfirm){
-            dispatch({ type: 'SAVE_STEP_2', cmd })
-        }
-        else if(state.awaitingLoadConfirm){
-            dispatch({ type: 'LOAD_STEP_2', cmd })
-        }
-        else if(state.awaitingDeleteConfirm){
-            dispatch({ type: 'DELETE_STEP_2', cmd })
-        }
-        else {
-            dispatch({ type: 'ADD_MESSAGE', message: "Unknown command." })
         }
     }
 
