@@ -23,7 +23,6 @@ export const initialState = {
 export function gameReducer(state, action) {
     const { player, locationMap } = state
     //TODO: add unit tests
-    //TODO: add autocomplete feature? tab will check the command you enter, then loop through the possible 2nd command (items, enemies, locations, etc... based on what you enter first)
     switch (action.type) {
         case 'HELP': {
             return {
