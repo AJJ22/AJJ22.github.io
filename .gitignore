@@ -11,6 +11,9 @@
 # production
 /build
 
+# code practice
+/src/code_practice
+
 # misc
 .DS_Store
 .env.local
