@@ -1,4 +1,4 @@
-import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages } from '../objectCreation.ts'
+import { player, helpMsg, weaponMap, armorMap, foodMap, potionMap, keyMap, locationMap, enemyMap, bearMessages, ripCurrentMsg } from '../objectCreation.ts'
 import { removeFirstFoundItem, isAPotion, updateChanceToHit, updateHP, updateArmor, updateCritChance, calculateDamage, addLocationToExits, 
     removeEnemy, save, load, deleteData } from './helperFunctions.ts'
 import cloneDeep from 'lodash/cloneDeep'
@@ -6,7 +6,7 @@ import cloneDeep from 'lodash/cloneDeep'
 export const initialState = {
     player,
     locationMap,
-    previousLocation: '',
+    previousLocations: [],
     messages: ["Type 'help' or 'h' for a list of commands"],
     awaitingBuyInput: false,
     awaitingSellInput: false,
@@ -105,10 +105,8 @@ export function gameReducer(state, action) {
                                     ...player,
                                     location: "underwater-cavern"
                                 },
-                                previousLocation: "underwater-cavern",
-                                messages: [...state.messages, `You enter the current and are immediately sucked downwards.\n
-                                    You spin uncontrollably for minutes, though luckily for you, you are able to breath underwater.\n
-                                    You are eventually spit out into a large underwater-cavern.`]
+                                previousLocations: [...state.previousLocations, "rip-current"],
+                                messages: [...state.messages, ripCurrentMsg]
                             }
                         }
                         updatePlayer = {
@@ -139,7 +137,7 @@ export function gameReducer(state, action) {
                 return{
                     ...state,
                     player: updatePlayer,
-                    previousLocation: player.location,
+                    previousLocations: state.previousLocations.includes(action.direction) ? state.previousLocations.slice(0, -1) : [...state.previousLocations, player.location],
                     messages: [...state.messages, `You move to ${action.direction}.` + message]
                 }
             }
@@ -151,26 +149,29 @@ export function gameReducer(state, action) {
             }
         }
 
-        //TODO: rework - back command should use a FILO system (or a stack). you put location on the stack as you move. if you use 'back' it pops the top from the stack.
-        //if you hit back enough times, you will always end up at town.
         case 'BACK': {
-            if(state.previousLocation !== '' && state.previousLocation !== player.location){
-                const currentLocation = player.location
-                const updatePlayer = {
-                    ...player,
-                    location: state.previousLocation
+            if(state.previousLocations.length > 0){
+                const prevLocation = state.previousLocations[state.previousLocations.length - 1]
+                if(prevLocation === 'rip-current'){
+                   return{
+                    ...state,
+                    messages: [...state.messages, ripCurrentMsg]
+                } 
                 }
                 return{
                     ...state,
-                    player: updatePlayer,
-                    previousLocation: currentLocation,
-                    messages: [...state.messages, `You move back to your previous location, ${state.previousLocation}`]
+                    player: {
+                        ...player,
+                        location: prevLocation
+                    },
+                    previousLocations: state.previousLocations.slice(0, -1),
+                    messages: [...state.messages, `You move back to your previous location, ${prevLocation}`]
                 }
             }
             else{
                 return{
                     ...state,
-                    messages: [...state.messages, `You can't move backwards if you haven't moved on your own.`]
+                    messages: [...state.messages, `You can't move backwards from the starting location.`]
                 }
             }
         }
