@@ -217,3 +217,7 @@ export const bearMessages = [
     "He picks up something that looks like a toothpick in his paws and presents it to you with what seems to be a smile.\n" +
     "It's a vaal axe. A weapon said to be quite rare nowadays. You take it and thank him for his generosity."
 ]
+
+export const ripCurrentMsg = `You enter the current and are immediately sucked downwards.\n
+                              You spin uncontrollably for minutes, though luckily for you, you are able to breath underwater.\n
+                              You are eventually spit out into a large underwater-cavern.`
